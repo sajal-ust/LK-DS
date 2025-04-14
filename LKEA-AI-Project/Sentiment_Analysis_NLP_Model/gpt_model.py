@@ -5,15 +5,11 @@ import openai
 from dotenv import load_dotenv
 from sklearn.metrics import classification_report
 
-# Load the .env file
 load_dotenv()
-
-# Get API key from .env
-openai.api_key = "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"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 if not openai.api_key:
-    raise ValueError("Error: OpenAI API key not found! Make sure the .env file is correctly loaded.")
-
+    raise ValueError("API key not found.")
 def get_gpt_sentiment(text):
     try:
         response = openai.ChatCompletion.create(
