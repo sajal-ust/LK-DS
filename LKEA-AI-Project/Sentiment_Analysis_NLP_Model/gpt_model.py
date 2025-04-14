@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from sklearn.metrics import classification_report
 
 # Commented out IPython magic to ensure Python compatibility.
-%writefile .env
+%%writefile .env
 OPENAI_API_KEY=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
 
 #
