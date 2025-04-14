@@ -258,7 +258,7 @@ def save_results_to_csv(metrics_df, detailed_results, base_filename="forecast_re
     """
     
     # 1. Save performance metrics
-    metrics_df.to_csv(f"{base_filename}_metrics.csv", index=False)
+    metrics_df.to_csv(f"output_folder/{base_filename}_metrics.csv", index=False)
     
     # 2. Save forecasts (12-month predictions)
     forecast_data = []
@@ -290,7 +290,7 @@ def save_results_to_csv(metrics_df, detailed_results, base_filename="forecast_re
             })
     
     if forecast_data:
-        pd.concat(forecast_data).to_csv(f"{base_filename}_forecasts.csv", index=False)
+        pd.concat(forecast_data).to_csv(f"output_folder/{base_filename}_forecasts.csv", index=False)
     
     # 3. Save actual vs predicted comparisons
     comparison_data = []
@@ -318,10 +318,10 @@ def save_results_to_csv(metrics_df, detailed_results, base_filename="forecast_re
         }))
     
     if comparison_data:
-        pd.concat(comparison_data).to_csv(f"{base_filename}_comparisons.csv", index=False)
+        pd.concat(comparison_data).to_csv(f"output_folder/{base_filename}_comparisons.csv", index=False)
 
     if elasticity_data:
-        pd.DataFrame(elasticity_data).to_csv(f"{base_filename}_elasticity.csv", index=False)
+        pd.DataFrame(elasticity_data).to_csv(f"output_folder/{base_filename}_elasticity.csv", index=False)
     
     print(f"Successfully saved results to:")
     print(f"- Metrics: {base_filename}_metrics.csv")
@@ -330,11 +330,22 @@ def save_results_to_csv(metrics_df, detailed_results, base_filename="forecast_re
     print(f"- Elasticity: {base_filename}_elasticity.csv")
 
 
-# Example usage
-df = load_data("stockist_data_with_date3.xlsx")
-df = initial_cleaning(df)
-monthly_df = prepare_data(df)
-# Run the full pipeline
-metrics_df, detailed_results = run_forecast_pipeline(monthly_df)
-# With custom filename:
-save_results_to_csv(metrics_df, detailed_results, "my_product_forecasts001")
+def main():
+    # Load data from the provided Excel file
+    df = load_data("input_data/stockist_data_with_date.xlsx")
+    
+    # Perform initial data cleaning
+    df = initial_cleaning(df)
+    
+    # Prepare the data for forecasting (e.g., aggregate or transform it)
+    monthly_df = prepare_data(df)
+    
+    # Run the forecasting pipeline
+    metrics_df, detailed_results = run_forecast_pipeline(monthly_df)
+    
+    # Save the results to CSV with a custom filename
+    save_results_to_csv(metrics_df, detailed_results, "my_product_forecasts001")
+
+# Ensure the main function runs when the script is executed
+if __name__ == "__main__":
+    main()

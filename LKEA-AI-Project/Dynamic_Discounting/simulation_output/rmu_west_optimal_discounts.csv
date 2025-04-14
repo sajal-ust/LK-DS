@@ -1,0 +1,5 @@
+product,region,price_bucket,price_midpoint,optimal_discount_pct,optimal_demand,max_revenue
+RMU(Ring Main Unit),West,2537.96-2784.72,2659.17,0,1168.08,3106123.29
+RMU(Ring Main Unit),West,2784.72-3031.48,2908.06,0,1365.86,3972002.83
+RMU(Ring Main Unit),West,3031.48-3278.24,3180.61,0,1284.83,4086543.15
+RMU(Ring Main Unit),West,3278.24-3525.00,3404.03,0,1434.75,4883932.04

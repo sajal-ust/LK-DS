@@ -155,14 +155,14 @@ def save_optimal_discounts(simulation_df, filename="optimal_discounts.csv"):
 
 if __name__ == "__main__":
     # Load elasticity values
-    elasticity_df = pd.read_csv("my_product_forecasts001_elasticity.csv")
+    elasticity_df = pd.read_csv("output_folder/my_product_forecasts001_elasticity.csv")
     product_elasticity = elasticity_df[
         (elasticity_df['product'] == "RMU(Ring Main Unit)") &
         (elasticity_df['region'] == "West")
     ]['price_elasticity'].values[0]
 
     # Load transaction data
-    df = load_data("stockist_data_with_date3.xlsx")
+    df = load_data("input_data/stockist_data_with_date.xlsx")
     df = initial_cleaning(df)
     monthly_df = prepare_data(df)
 
@@ -176,10 +176,10 @@ if __name__ == "__main__":
 
     if simulation is not None:
         # Save full simulation
-        simulation.to_csv("rmu_west_simulation.csv", index=False)
+        simulation.to_csv("simulation_output/rmu_west_simulation.csv", index=False)
 
         # Save optimal discounts
-        optimal_discounts = save_optimal_discounts(simulation, filename="rmu_west_optimal_discounts.csv")
+        optimal_discounts = save_optimal_discounts(simulation, filename="simulation_output/rmu_west_optimal_discounts.csv")
 
         # Display a sample
         print(optimal_discounts.head())
