@@ -47,7 +47,7 @@ def get_gpt_sentiment(text):
         return "Negative"
 
 # Load Data
-df = pd.read_csv("LKEA-AI-Project/Sentiment_Analysis_NLP_Model/channel_partner_feedback.csv")  # Ensure it has 'text' and 'true_label' columns
+df = pd.read_csv("input_data/channel_partner_feedback.csv")  # Ensure it has 'text' and 'true_label' columns
 
 # Analyze Sentiment for GPT (Add rate-limiting with sleep)
 df["gpt_prediction"] = df["Feedback_Text"].apply(
