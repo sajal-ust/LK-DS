@@ -39,7 +39,7 @@ def analyze_roberta_sentiment(text, tokenizer, model, threshold=0.5):
         return "Negative"
 
 # Load Data
-df = pd.read_csv(r"C:\Users\291688\Downloads\Sentiment_Analysis_NLP_Model\channel_partner_feedback.csv")  # Ensure it has 'text' and 'true_label' columns
+df = pd.read_csv(channel_partner_feedback.csv")  # Ensure it has 'text' and 'true_label' columns
 
 # Analyze Sentiment for RoBERTa
 df["roberta_model_prediction"] = df["Feedback_Text"].apply(lambda x: analyze_roberta_sentiment(x, tokenizer, roberta_model))
