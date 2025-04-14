@@ -19,7 +19,6 @@ from sklearn.metrics import classification_report
 # OPENAI_API_KEY=your-openai-api-key-here
 #
 
-!pip install python-dotenv
 
 # Load the .env file
 load_dotenv()
