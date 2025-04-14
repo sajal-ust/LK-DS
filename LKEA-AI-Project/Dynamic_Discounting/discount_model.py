@@ -20,6 +20,8 @@ def load_data(path):
 
 # %% Initial Cleaning
 def initial_cleaning(df):
+
+    
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     df = df.dropna(subset=['Date'])
     df = df.sort_values(by='Date')
@@ -119,14 +121,220 @@ def calculate_elasticity(fitted_model):
 
 # %% Evaluation Placeholder
 def evaluate_model(model, test_group):
-    # Implementation needed
-    pass
+    """Evaluate model performance on test data"""
+    try:
+        # Clean test data
+        # test_group = clean_log_values(test_group.copy())
+        test_group = test_group.sort_values('YearMonth')
+        
+        # Prepare test data
+        y_test = test_group.set_index('YearMonth')['Log_Demand']
+        exog_test = test_group.set_index('YearMonth')[['Log_Price', 'Log_Competitor_Price']]
+        
+        # Generate forecasts
+        forecast = model.get_forecast(
+            steps=len(y_test),
+            exog=exog_test
+        )
+        
+        # Calculate metrics (converting back from log scale)
+        pred = np.exp(forecast.predicted_mean).values  # Convert to numpy array
+        actual = np.exp(y_test).values  # Convert to numpy array
+        
+        mae = mean_absolute_error(actual, pred)
+        rmse = np.sqrt(mean_squared_error(actual, pred))
+        # with warnings.catch_warnings():
+        #     warnings.simplefilter("ignore", RuntimeWarning)
+        mape = np.mean(np.abs((actual - pred) / actual)) * 100
+        
+        return {
+            'mae': mae,
+            'rmse': rmse,
+            'mape': mape,
+            'actual': actual,
+            'predicted': pred
+        }
+    
+    except Exception as e:
+        print(f"Evaluation failed: {str(e)}")
+        return None
+    
 
-# Example usage (uncomment to run interactively)
+def generate_forecasts(model, train_group, steps=12):
+    """Generate future forecasts with proper unit handling"""
+    try:
+        # Get last available data point
+        last_data = train_group.sort_values('YearMonth').iloc[-1]
+        
+        # Create future exogenous variables
+        future_exog = pd.DataFrame(
+            [last_data[['Log_Price', 'Log_Competitor_Price']].values] * steps,
+            columns=['Log_Price', 'Log_Competitor_Price'],
+            index=pd.date_range(
+                start=train_group['YearMonth'].max() + pd.offsets.MonthBegin(1),
+                periods=steps,
+                freq='MS'
+            )
+        )
+        
+        # Generate forecasts
+        forecast = model.get_forecast(
+            steps=steps,
+            exog=future_exog
+        ).predicted_mean
+        
+        # Return in original scale (only convert if model used log)
+        if 'Log_Demand' in model.model.endog_names:
+            return np.exp(forecast)
+        return forecast
+    
+    except Exception as e:
+        print(f"Forecast generation failed: {str(e)}")
+        return None
+
+
+def run_forecast_pipeline(monthly_df):
+    """Complete forecasting pipeline"""
+    # 1. Split data (time-based)
+    train_df, test_df = train_test_split_monthly(monthly_df, test_size=0.2)
+    
+    detailed_results = []
+    performance_metrics = []
+    
+    for (product, region), group in train_df.groupby(['Product_id', 'Geography']):
+        # Get corresponding test data
+        test_group = test_df[
+            (test_df['Product_id'] == product) & 
+            (test_df['Geography'] == region)
+        ]
+        
+        # Skip if no test data
+        if len(test_group) == 0:
+            continue
+        
+        # Train model
+        model = train_sarimax_model(group)
+        if model is None:
+            continue
+
+        elasticity = calculate_elasticity(model)
+        
+        # Evaluate model
+        eval_results = evaluate_model(model, test_group)
+        if eval_results is None:
+            continue
+        
+        # Generate forecasts
+        forecasts = generate_forecasts(model, group)
+        
+        # Store results
+        detailed_results.append({
+            'product': product,
+            'region': region,
+            'model': model,
+            'actual': eval_results['actual'],
+            'predicted': eval_results['predicted'],
+            'forecast': forecasts, 
+            'elasticity': elasticity
+        })
+        
+        performance_metrics.append({
+            'product': product,
+            'region': region,
+            'mae': eval_results['mae'],
+            'rmse': eval_results['rmse'],
+            'mape': eval_results['mape']
+        })
+    
+    return pd.DataFrame(performance_metrics), detailed_results
+
+
+def save_results_to_csv(metrics_df, detailed_results, base_filename="forecast_results"):
+    """
+    Save forecast results to CSV files
+    - Ensures proper date formatting
+    - Preserves original units (no double conversion)
+    - Creates clean, analysis-ready outputs
+    """
+    
+    # 1. Save performance metrics
+    metrics_df.to_csv(f"{base_filename}_metrics.csv", index=False)
+    
+    # 2. Save forecasts (12-month predictions)
+    forecast_data = []
+    elasticity_data = []
+    for result in detailed_results:
+        if result['forecast'] is None:
+            continue
+            
+        # Create future dates starting next month
+        last_date = result['actual'].index[-1] if isinstance(result['actual'], pd.Series) else pd.Timestamp.now()
+        dates = pd.date_range(
+            start=last_date + pd.offsets.MonthBegin(1),
+            periods=len(result['forecast']),
+            freq='MS'
+        )
+        
+        forecast_data.append(pd.DataFrame({
+            'product': result['product'],
+            'region': result['region'],
+            'date': dates.strftime('%Y-%m-%d'),
+            'forecast': result['forecast']  # Already in original units
+        }))
+        # Elasticity DataFrame (simple product-region mapping)
+        if 'elasticity' in result:
+            elasticity_data.append({
+                'product': result['product'],
+                'region': result['region'], 
+                'price_elasticity': result['elasticity']
+            })
+    
+    if forecast_data:
+        pd.concat(forecast_data).to_csv(f"{base_filename}_forecasts.csv", index=False)
+    
+    # 3. Save actual vs predicted comparisons
+    comparison_data = []
+    for result in detailed_results:
+        if result.get('actual') is None or result.get('predicted') is None:
+            continue
+            
+        # Get existing dates or create default range
+        if isinstance(result['actual'], pd.Series):
+            dates = result['actual'].index
+        else:
+            dates = pd.date_range(
+                end=pd.Timestamp.now(),
+                periods=len(result['actual']),
+                freq='MS'
+            )
+        
+        comparison_data.append(pd.DataFrame({
+            'product': result['product'],
+            'region': result['region'],
+            'elasticity': result['elasticity'],
+            'date': dates.strftime('%Y-%m-%d'),
+            'actual': result['actual'],  # Already in original units
+            'predicted': result['predicted']  # Already in original units
+        }))
+    
+    if comparison_data:
+        pd.concat(comparison_data).to_csv(f"{base_filename}_comparisons.csv", index=False)
+
+    if elasticity_data:
+        pd.DataFrame(elasticity_data).to_csv(f"{base_filename}_elasticity.csv", index=False)
+    
+    print(f"Successfully saved results to:")
+    print(f"- Metrics: {base_filename}_metrics.csv")
+    print(f"- Forecasts: {base_filename}_forecasts.csv")
+    print(f"- Comparisons: {base_filename}_comparisons.csv")
+    print(f"- Elasticity: {base_filename}_elasticity.csv")
+
+
+# Example usage
 df = load_data("stockist_data_with_date3.xlsx")
 df = initial_cleaning(df)
 monthly_df = prepare_data(df)
-train_df, test_df = train_test_split_monthly(monthly_df)
-fitted_model = train_sarimax_model(train_df)
-elasticity = calculate_elasticity(fitted_model)
-print("Elasticity:", elasticity)
+# Run the full pipeline
+metrics_df, detailed_results = run_forecast_pipeline(monthly_df)
+# With custom filename:
+save_results_to_csv(metrics_df, detailed_results, "my_product_forecasts001")
