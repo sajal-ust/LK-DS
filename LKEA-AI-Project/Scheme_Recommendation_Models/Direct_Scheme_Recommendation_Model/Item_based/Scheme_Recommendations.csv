@@ -1,0 +1,31 @@
+Product_id,Similarity_Scores,Scheme_1,Scheme_2,Scheme_3
+Solar Solutions,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+Solar Solutions,0.215812,Cashback,Loyalty Points,Volume Discount
+AIS,0.215812,Cashback,Loyalty Points,Volume Discount
+AIS,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+VCU,0.198901,Volume Discount,Seasonal Offer,Cashback
+VCU,0.215812,Cashback,Loyalty Points,Volume Discount
+Pump Starter and Controller,0.176923,Loyalty Points,Cashback,Seasonal Offer
+Pump Starter and Controller,0.215812,Cashback,Loyalty Points,Volume Discount
+Modular Switches,0.176923,Loyalty Points,Cashback,Seasonal Offer
+Modular Switches,0.198901,Volume Discount,Seasonal Offer,Cashback
+Controller,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+Controller,0.215812,Cashback,Loyalty Points,Volume Discount
+BBT,0.176923,Loyalty Points,Cashback,Seasonal Offer
+BBT,0.198901,Volume Discount,Seasonal Offer,Cashback
+MCCB,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+MCCB,0.215812,Cashback,Loyalty Points,Volume Discount
+VCB,0.198901,Volume Discount,Seasonal Offer,Cashback
+VCB,0.176923,Loyalty Points,Cashback,Seasonal Offer
+E-House,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+E-House,0.176923,Loyalty Points,Cashback,Seasonal Offer
+RMU,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+RMU,0.198901,Volume Discount,Seasonal Offer,Cashback
+ACB,0.176923,Loyalty Points,Cashback,Seasonal Offer
+ACB,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+SDF,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+SDF,0.215812,Cashback,Loyalty Points,Volume Discount
+Starter,0.198901,Volume Discount,Seasonal Offer,Cashback
+Starter,0.215812,Cashback,Loyalty Points,Volume Discount
+PSS,0.23779,Seasonal Offer,Volume Discount,Loyalty Points
+PSS,0.198901,Volume Discount,Seasonal Offer,Cashback

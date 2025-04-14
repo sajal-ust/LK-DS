@@ -1,0 +1,601 @@
+Partner_id,Product_id,Similarity_Scores,Scheme_1,Scheme_2,Scheme_3
+522_2,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+522_2,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+522_2,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+738_32,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+738_32,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+738_32,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+741_93,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+741_93,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+741_93,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+661_12,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+661_12,PSS(Compact Sub-Stations),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+661_12,SDF(Switch Disconnectors),0.3406408094435076,Discount,Bulk Purchase,Loyalty
+412_22,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+412_22,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+412_22,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+679_49,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+679_49,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+679_49,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+627_15,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+627_15,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+627_15,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+514_64,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+514_64,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+514_64,ACB(Air Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+860_10,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+860_10,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+860_10,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+137_58,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+137_58,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+137_58,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+812_59,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+812_59,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+812_59,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+077_8,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+077_8,VCB(Vacuum Circuit Breaker),0.347972972972973,Discount,Loyalty,Bulk Purchase
+077_8,BBT(Busbar Trunking),0.3466666666666667,Discount,Loyalty,Bulk Purchase
+637_89,VCU(Vacuum Contactor Units),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+637_89,MCCB(Moduled Case Circuit Breaker),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+637_89,VCB(Vacuum Circuit Breaker),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+974_47,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+974_47,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+974_47,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+939_84,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+939_84,PSS(Compact Sub-Stations),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+939_84,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+900_88,AIS(Air Insulated Switchgear),0.37323943661971826,Loyalty,Discount,Bulk Purchase
+900_88,VCB(Vacuum Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+900_88,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+281_21,MCCB(Moduled Case Circuit Breaker),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+281_21,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+281_21,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+884_69,MCCB(Moduled Case Circuit Breaker),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+884_69,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+884_69,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+762_70,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+762_70,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+762_70,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+320_72,VCU(Vacuum Contactor Units),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+320_72,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+320_72,AIS(Air Insulated Switchgear),0.34150612959719795,Loyalty,Discount,Bulk Purchase
+550_16,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+550_16,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+550_16,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+175_75,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+175_75,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+175_75,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+372_55,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+372_55,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+372_55,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+528_51,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+528_51,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+528_51,VCB(Vacuum Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+211_11,PSS(Compact Sub-Stations),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+211_11,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+211_11,BBT(Busbar Trunking),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+236_91,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+236_91,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+236_91,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+102_36,PSS(Compact Sub-Stations),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+102_36,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+102_36,MCCB(Moduled Case Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+987_6,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+987_6,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+987_6,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+903_57,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+903_57,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+903_57,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+948_33,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+948_33,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+948_33,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+347_9,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+347_9,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+347_9,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+140_24,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+140_24,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+140_24,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+622_65,PSS(Compact Sub-Stations),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+622_65,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+622_65,MCCB(Moduled Case Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+500_70,PSS(Compact Sub-Stations),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+500_70,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+500_70,BBT(Busbar Trunking),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+371_13,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+371_13,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+371_13,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+199_89,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+199_89,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+199_89,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+688_45,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+688_45,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+688_45,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+585_21,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+585_21,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+585_21,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+902_34,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+902_34,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+902_34,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+060_20,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+060_20,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+060_20,ACB(Air Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+329_62,MCCB(Moduled Case Circuit Breaker),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+329_62,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+329_62,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+097_97,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+097_97,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+097_97,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+313_38,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+313_38,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+313_38,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+975_51,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+975_51,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+975_51,VCB(Vacuum Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+300_9,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+300_9,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+300_9,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+278_15,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+278_15,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+278_15,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+925_66,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+925_66,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+925_66,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+602_17,AIS(Air Insulated Switchgear),0.37323943661971826,Loyalty,Discount,Bulk Purchase
+602_17,ACB(Air Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+602_17,PSS(Compact Sub-Stations),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+440_40,AIS(Air Insulated Switchgear),0.37323943661971826,Loyalty,Discount,Bulk Purchase
+440_40,VCB(Vacuum Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+440_40,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+838_24,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+838_24,PSS(Compact Sub-Stations),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+838_24,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+571_60,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+571_60,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+571_60,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+880_62,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+880_62,PSS(Compact Sub-Stations),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+880_62,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+262_63,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+262_63,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+262_63,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+579_85,VCU(Vacuum Contactor Units),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+579_85,VCB(Vacuum Circuit Breaker),0.34003350083752093,Discount,Loyalty,Bulk Purchase
+579_85,PSS(Compact Sub-Stations),0.3293918918918919,Discount,Loyalty,Bulk Purchase
+024_72,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+024_72,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+024_72,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+031_12,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+031_12,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+031_12,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+618_67,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+618_67,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+618_67,VCB(Vacuum Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+011_25,VCU(Vacuum Contactor Units),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+011_25,VCB(Vacuum Circuit Breaker),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+011_25,BBT(Busbar Trunking),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+222_51,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+222_51,MCCB(Moduled Case Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+222_51,ACB(Air Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+821_49,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+821_49,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+821_49,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+297_41,VCU(Vacuum Contactor Units),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+297_41,MCCB(Moduled Case Circuit Breaker),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+297_41,VCB(Vacuum Circuit Breaker),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+055_92,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+055_92,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+055_92,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+543_56,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+543_56,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+543_56,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+210_42,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+210_42,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+210_42,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+605_34,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+605_34,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+605_34,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+693_79,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+693_79,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+693_79,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+663_34,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+663_34,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+663_34,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+867_17,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+867_17,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+867_17,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+071_78,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+071_78,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+071_78,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+544_63,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+544_63,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+544_63,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+108_83,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+108_83,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+108_83,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+494_77,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+494_77,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+494_77,VCB(Vacuum Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+591_91,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+591_91,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+591_91,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+742_97,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+742_97,ACB(Air Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+742_97,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+293_39,MCCB(Moduled Case Circuit Breaker),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+293_39,ACB(Air Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+293_39,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+290_28,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+290_28,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+290_28,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+653_20,AIS(Air Insulated Switchgear),0.37323943661971826,Loyalty,Discount,Bulk Purchase
+653_20,ACB(Air Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+653_20,VCB(Vacuum Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+040_24,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+040_24,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+040_24,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+590_81,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+590_81,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+590_81,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+308_95,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+308_95,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+308_95,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+680_26,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+680_26,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+680_26,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+067_5,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+067_5,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+067_5,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+276_43,MCCB(Moduled Case Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+276_43,VCB(Vacuum Circuit Breaker),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+276_43,BBT(Busbar Trunking),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+068_46,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+068_46,PSS(Compact Sub-Stations),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+068_46,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+319_23,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+319_23,ACB(Air Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+319_23,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+549_45,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+549_45,PSS(Compact Sub-Stations),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+549_45,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+999_85,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+999_85,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+999_85,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+715_75,VCU(Vacuum Contactor Units),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+715_75,PSS(Compact Sub-Stations),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+715_75,VCB(Vacuum Circuit Breaker),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+754_53,VCU(Vacuum Contactor Units),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+754_53,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+754_53,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+328_91,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+328_91,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+328_91,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+383_89,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+383_89,ACB(Air Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+383_89,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+452_93,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+452_93,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+452_93,PSS(Compact Sub-Stations),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+523_56,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+523_56,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+523_56,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+219_42,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+219_42,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+219_42,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+788_98,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+788_98,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+788_98,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+437_21,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+437_21,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+437_21,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+765_44,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+765_44,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+765_44,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+089_56,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+089_56,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+089_56,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+064_67,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+064_67,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+064_67,VCB(Vacuum Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+827_8,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+827_8,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+827_8,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+717_43,MCCB(Moduled Case Circuit Breaker),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+717_43,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+717_43,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+352_22,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+352_22,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+352_22,ACB(Air Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+937_74,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+937_74,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+937_74,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+257_36,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+257_36,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+257_36,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+636_78,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+636_78,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+636_78,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+645_61,MCCB(Moduled Case Circuit Breaker),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+645_61,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+645_61,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+555_72,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+555_72,ACB(Air Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+555_72,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+960_14,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+960_14,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+960_14,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+169_88,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+169_88,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+169_88,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+918_16,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+918_16,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+918_16,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+529_46,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+529_46,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+529_46,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+824_25,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+824_25,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+824_25,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+986_5,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+986_5,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+986_5,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+817_83,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+817_83,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+817_83,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+087_41,MCCB(Moduled Case Circuit Breaker),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+087_41,ACB(Air Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+087_41,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+433_61,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+433_61,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+433_61,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+185_89,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+185_89,BBT(Busbar Trunking),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+185_89,PSS(Compact Sub-Stations),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+979_83,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+979_83,MCCB(Moduled Case Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+979_83,ACB(Air Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+535_49,VCB(Vacuum Circuit Breaker),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+535_49,E-House,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+535_49,MCCB(Moduled Case Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+295_77,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+295_77,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+295_77,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+893_77,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+893_77,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+893_77,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+426_81,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+426_81,PSS(Compact Sub-Stations),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+426_81,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+714_70,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+714_70,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+714_70,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+261_25,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+261_25,ACB(Air Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+261_25,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+238_58,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+238_58,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+238_58,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+560_32,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+560_32,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+560_32,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+584_95,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+584_95,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+584_95,ACB(Air Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+446_16,VCB(Vacuum Circuit Breaker),0.3466666666666667,Discount,Loyalty,Bulk Purchase
+446_16,E-House,0.3316582914572864,Discount,Loyalty,Bulk Purchase
+446_16,RMU(Ring Main Unit),0.3305084745762712,Discount,Loyalty,Bulk Purchase
+868_69,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+868_69,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+868_69,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+801_92,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+801_92,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+801_92,ACB(Air Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+600_1,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+600_1,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+600_1,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+850_72,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+850_72,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+850_72,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+266_94,VCU(Vacuum Contactor Units),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+266_94,VCB(Vacuum Circuit Breaker),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+266_94,SDF(Switch Disconnectors),0.3406408094435076,Discount,Bulk Purchase,Loyalty
+996_99,MCCB(Moduled Case Circuit Breaker),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+996_99,ACB(Air Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+996_99,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+530_68,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+530_68,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+530_68,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+056_64,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+056_64,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+056_64,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+121_66,PSS(Compact Sub-Stations),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+121_66,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+121_66,BBT(Busbar Trunking),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+216_82,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+216_82,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+216_82,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+026_21,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+026_21,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+026_21,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+073_86,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+073_86,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+073_86,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+045_11,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+045_11,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+045_11,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+248_74,MCCB(Moduled Case Circuit Breaker),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+248_74,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+248_74,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+722_81,PSS(Compact Sub-Stations),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+722_81,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+722_81,BBT(Busbar Trunking),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+282_79,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+282_79,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+282_79,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+894_76,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+894_76,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+894_76,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+915_79,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+915_79,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+915_79,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+811_10,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+811_10,PSS(Compact Sub-Stations),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+811_10,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+245_56,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+245_56,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+245_56,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+823_97,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+823_97,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+823_97,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+322_57,VCU(Vacuum Contactor Units),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+322_57,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+322_57,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+644_36,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+644_36,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+644_36,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+159_80,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+159_80,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+159_80,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+978_65,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+978_65,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+978_65,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+430_11,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+430_11,VCB(Vacuum Circuit Breaker),0.347972972972973,Discount,Loyalty,Bulk Purchase
+430_11,BBT(Busbar Trunking),0.3466666666666667,Discount,Loyalty,Bulk Purchase
+942_62,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+942_62,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+942_62,PSS(Compact Sub-Stations),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+463_60,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+463_60,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+463_60,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+310_39,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+310_39,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+310_39,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+698_55,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+698_55,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+698_55,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+061_79,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+061_79,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+061_79,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+885_63,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+885_63,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+885_63,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+596_83,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+596_83,VCB(Vacuum Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+596_83,BBT(Busbar Trunking),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+768_23,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+768_23,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+768_23,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+650_2,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+650_2,PSS(Compact Sub-Stations),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+650_2,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+651_92,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+651_92,SDF(Switch Disconnectors),0.3408304498269896,Discount,Bulk Purchase,Loyalty
+651_92,RMU(Ring Main Unit),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+866_72,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+866_72,MCCB(Moduled Case Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+866_72,ACB(Air Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+669_75,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+669_75,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+669_75,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+299_74,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+299_74,MCCB(Moduled Case Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+299_74,ACB(Air Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+690_68,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+690_68,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+690_68,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+315_87,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+315_87,SDF(Switch Disconnectors),0.3408304498269896,Discount,Bulk Purchase,Loyalty
+315_87,RMU(Ring Main Unit),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+311_95,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+311_95,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+311_95,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+362_45,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+362_45,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+362_45,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+480_23,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+480_23,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+480_23,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+111_6,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+111_6,Modular Switches,0.3447098976109215,Discount,Loyalty,Bulk Purchase
+111_6,ACB(Air Circuit Breaker),0.34219269102990035,Discount,Loyalty,Bulk Purchase
+990_81,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+990_81,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+990_81,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+487_82,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+487_82,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+487_82,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+364_17,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+364_17,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+364_17,BBT(Busbar Trunking),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+255_72,VCU(Vacuum Contactor Units),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+255_72,VCB(Vacuum Circuit Breaker),0.3408304498269896,Discount,Loyalty,Bulk Purchase
+255_72,BBT(Busbar Trunking),0.3406408094435076,Discount,Loyalty,Bulk Purchase
+260_95,AIS(Air Insulated Switchgear),0.37323943661971826,Loyalty,Discount,Bulk Purchase
+260_95,ACB(Air Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+260_95,VCB(Vacuum Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+803_55,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+803_55,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+803_55,PSS(Compact Sub-Stations),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+678_87,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+678_87,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+678_87,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+495_70,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+495_70,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+495_70,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+671_96,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+671_96,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+671_96,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+378_60,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+378_60,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+378_60,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+527_15,VCU(Vacuum Contactor Units),0.3539518900343642,Discount,Loyalty,Bulk Purchase
+527_15,MCCB(Moduled Case Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+527_15,Modular Switches,0.34219269102990035,Discount,Loyalty,Bulk Purchase
+846_84,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+846_84,ACB(Air Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+846_84,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+138_86,MCCB(Moduled Case Circuit Breaker),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+138_86,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+138_86,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+356_67,VCU(Vacuum Contactor Units),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+356_67,AIS(Air Insulated Switchgear),0.3447098976109215,Loyalty,Discount,Bulk Purchase
+356_67,ACB(Air Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+366_94,VCU(Vacuum Contactor Units),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+366_94,Modular Switches,0.34595524956970736,Discount,Loyalty,Bulk Purchase
+366_94,PSS(Compact Sub-Stations),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+943_28,VCB(Vacuum Circuit Breaker),0.37323943661971826,Discount,Loyalty,Bulk Purchase
+943_28,RMU(Ring Main Unit),0.34003350083752093,Discount,Loyalty,Bulk Purchase
+943_28,VCU(Vacuum Contactor Units),0.3293918918918919,Discount,Loyalty,Bulk Purchase
+750_98,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+750_98,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+750_98,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+949_66,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+949_66,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+949_66,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+830_94,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+830_94,PSS(Compact Sub-Stations),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+830_94,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+657_77,PSS(Compact Sub-Stations),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+657_77,VCB(Vacuum Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+657_77,BBT(Busbar Trunking),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+200_44,MCCB(Moduled Case Circuit Breaker),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+200_44,ACB(Air Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+200_44,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+214_64,MCCB(Moduled Case Circuit Breaker),0.3552188552188552,Discount,Loyalty,Bulk Purchase
+214_64,ACB(Air Circuit Breaker),0.34595524956970736,Discount,Loyalty,Bulk Purchase
+214_64,VCB(Vacuum Circuit Breaker),0.33274956217162877,Discount,Loyalty,Bulk Purchase
+409_34,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+409_34,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+409_34,ACB(Air Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+333_97,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+333_97,Modular Switches,0.33673469387755106,Discount,Loyalty,Bulk Purchase
+333_97,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+209_45,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+209_45,MCCB(Moduled Case Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+209_45,Modular Switches,0.3287671232876712,Discount,Loyalty,Bulk Purchase
+614_53,VCU(Vacuum Contactor Units),0.34150612959719795,Discount,Loyalty,Bulk Purchase
+614_53,ACB(Air Circuit Breaker),0.33673469387755106,Discount,Loyalty,Bulk Purchase
+614_53,VCB(Vacuum Circuit Breaker),0.3287671232876712,Discount,Loyalty,Bulk Purchase
+079_39,AIS(Air Insulated Switchgear),0.37323943661971826,Loyalty,Discount,Bulk Purchase
+079_39,ACB(Air Circuit Breaker),0.3447098976109215,Discount,Loyalty,Bulk Purchase
+079_39,VCB(Vacuum Circuit Breaker),0.34150612959719795,Discount,Loyalty,Bulk Purchase

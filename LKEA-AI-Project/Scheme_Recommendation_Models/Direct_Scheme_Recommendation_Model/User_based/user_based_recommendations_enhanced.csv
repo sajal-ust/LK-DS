@@ -1,0 +1,102 @@
+Partner_id,Product_id,Similarity_Score,Scheme_1,Scheme_2,Scheme_3
+P1002,E-House,0.998374,Loyalty Points,Volume Discount,Seasonal Offer
+P1035,RMU,0.997089,Volume Discount,Seasonal Offer,Loyalty Program
+P1025,AIS,0.999976,Loyalty Program,Volume Discount,Seasonal Offer
+P1001,ACB,0.998374,Seasonal Offer,Volume Discount,Cashback
+P1022,SDF,0.992975,Volume Discount,Loyalty Program,Cashback
+P1036,Controller,0.997089,Volume Discount,Seasonal Offer,Loyalty Program
+P1003,Solar Solutions,0.996785,Seasonal Offer,Volume Discount,Cashback
+P1014,RMU,0.997356,Volume Discount,Loyalty Program,Seasonal Offer
+P1045,SDF,0.992298,Cashback,Loyalty Program,Seasonal Offer
+P1097,Starter,0.99975,Cashback,Volume Discount,Loyalty Program
+P1086,E-House,0.999976,Seasonal Offer,Volume Discount,Loyalty Program
+P1088,ACB,0.996208,Cashback,Loyalty Program,Volume Discount
+P1078,VCB,0.998904,Volume Discount,Seasonal Offer,Cashback
+P1085,Modular Switches,0.9972,Loyalty Program,Volume Discount,Cashback
+P1066,PSS,0.997336,Seasonal Offer,Volume Discount,Cashback
+P1030,ACB,0.99975,Cashback,Seasonal Offer,Volume Discount
+P1084,ACB,0.992975,Volume Discount,Seasonal Offer,Loyalty Program
+P1050,AIS,0.999336,Seasonal Offer,Loyalty Program,Volume Discount
+P1087,PSS,0.999689,Cashback,Volume Discount,Seasonal Offer
+P1048,SDF,0.999903,Volume Discount,Loyalty Program,Seasonal Offer
+P1057,VCB,0.998482,Seasonal Offer,Loyalty Program,Cashback
+P1017,RMU,0.998892,Cashback,Seasonal Offer,Loyalty Program
+P1053,MCCB,0.998853,Cashback,Loyalty Program,Volume Discount
+P1061,SDF,0.977148,Seasonal Offer,Volume Discount,Cashback
+P1005,VCU,0.991702,Seasonal Offer,Loyalty Program,Cashback
+P1093,SDF,0.996379,Cashback,Volume Discount,Loyalty Program
+P1000,MCCB,0.996064,Seasonal Offer,Volume Discount,Cashback
+P1012,SDF,0.998409,Seasonal Offer,Volume Discount,Loyalty Program
+P1015,AIS,0.999286,Cashback,Volume Discount,Seasonal Offer
+P1058,SDF,0.999325,Volume Discount,Seasonal Offer,Cashback
+P1007,SDF,0.999903,Volume Discount,Loyalty Program,Seasonal Offer
+P1041,Modular Switches,0.996987,Volume Discount,Loyalty Program,Cashback
+P1094,E-House,0.998409,Seasonal Offer,Loyalty Program,Volume Discount
+P1020,Controller,0.995922,Loyalty Program,Cashback,Seasonal Offer
+P1095,VCU,0.998119,Volume Discount,Cashback,Seasonal Offer
+P1034,VCU,0.994365,Seasonal Offer,Cashback,Volume Discount
+P1072,MCCB,0.998033,Cashback,Loyalty Program,Volume Discount
+P1099,E-House,0.999257,Cashback,Volume Discount,Loyalty Program
+P1068,E-House,0.996318,Cashback,Loyalty Program,Seasonal Offer
+P1060,PSS,0.998892,Cashback,Seasonal Offer,Loyalty Program
+P1004,PSS,0.997981,Loyalty Program,Volume Discount,Seasonal Offer
+P1077,VCB,0.999689,Loyalty Program,Cashback,Seasonal Offer
+P1016,Starter,0.999439,Volume Discount,Cashback,Seasonal Offer
+P1092,VCB,0.999583,Volume Discount,Seasonal Offer,Cashback
+P1010,VCU,0.996208,Cashback,Volume Discount,Loyalty Program
+P1070,E-House,0.993813,Seasonal Offer,Cashback,Loyalty Program
+P1075,Solar Solutions,0.996344,Loyalty Program,Cashback,Seasonal Offer
+P1051,RMU,0.999144,Volume Discount,Cashback,Loyalty Program
+P1080,Starter,0.996484,Seasonal Offer,Loyalty Program,Volume Discount
+P1076,Controller,0.999282,Cashback,Loyalty Program,Volume Discount
+P1009,ACB,0.998878,Seasonal Offer,Volume Discount,Loyalty Program
+P1091,Controller,0.98998,Seasonal Offer,Volume Discount,Cashback
+P1026,E-House,0.997791,Volume Discount,Seasonal Offer,Cashback
+P1029,BBT,0.998904,Volume Discount,Seasonal Offer,Cashback
+P1054,RMU,0.999336,Loyalty Program,Volume Discount,Seasonal Offer
+P1059,Solar Solutions,0.996914,Cashback,Volume Discount,Loyalty Program
+P1019,SDF,0.998335,Seasonal Offer,Volume Discount,Cashback
+P1042,SDF,0.997148,Volume Discount,Seasonal Offer,Cashback
+P1037,RMU,0.999325,Cashback,Loyalty Program,Volume Discount
+P1089,Pump Starter and Controller,0.99772,Volume Discount,Loyalty Program,Seasonal Offer
+P1040,ACB,0.994012,Cashback,Volume Discount,Loyalty Program
+P1031,BBT,0.996772,Seasonal Offer,Volume Discount,Cashback
+P1065,MCCB,0.999257,Cashback,Loyalty Program,Volume Discount
+P1074,PSS,0.990049,Loyalty Program,Volume Discount,Seasonal Offer
+P1021,PSS,0.994365,Seasonal Offer,Cashback,Volume Discount
+P1062,Starter,0.997709,Volume Discount,Cashback,Seasonal Offer
+P1044,Modular Switches,0.997709,Volume Discount,Cashback,Loyalty Program
+P1038,VCB,0.992307,Volume Discount,Loyalty Program,Cashback
+P1013,ACB,0.998482,Seasonal Offer,Loyalty Program,Cashback
+P1098,AIS,0.989374,Seasonal Offer,Cashback,Volume Discount
+P1056,Starter,0.998945,Volume Discount,Cashback,Seasonal Offer
+P1033,BBT,0.997333,Cashback,Loyalty Program,Seasonal Offer
+P1046,SDF,0.998335,Seasonal Offer,Loyalty Program,Cashback
+P1071,AIS,0.994973,Loyalty Program,Volume Discount,Cashback
+P1039,RMU,0.999587,Loyalty Program,Cashback,Volume Discount
+P1067,Pump Starter and Controller,0.999706,Volume Discount,Seasonal Offer,Cashback
+P1018,Solar Solutions,0.997879,Volume Discount,Loyalty Program,Seasonal Offer
+P1052,Solar Solutions,0.998722,Loyalty Program,Volume Discount,Cashback
+P1047,Starter,0.998945,Cashback,Volume Discount,Loyalty Program
+P1073,RMU,0.999282,Cashback,Seasonal Offer,Loyalty Program
+P1006,Controller,0.990567,Seasonal Offer,Volume Discount,Loyalty Program
+P1049,BBT,0.997336,Seasonal Offer,Cashback,Volume Discount
+P1090,SDF,0.999169,Seasonal Offer,Cashback,Volume Discount
+P1043,SDF,0.998517,Volume Discount,Seasonal Offer,Cashback
+P1069,MCCB,0.989658,Loyalty Program,Volume Discount,Cashback
+P1082,VCU,0.999583,Volume Discount,Cashback,Seasonal Offer
+P1008,MCCB,0.996713,Cashback,Volume Discount,Loyalty Program
+P1096,AIS,0.999587,Cashback,Volume Discount,Seasonal Offer
+P1100,Modular Switches,0.994895,Loyalty Program,Cashback,Seasonal Offer
+P1028,Starter,0.998722,Loyalty Program,Seasonal Offer,Volume Discount
+P1011,VCU,0.997007,Loyalty Program,Cashback,Volume Discount
+P1079,Starter,0.996875,Loyalty Program,Volume Discount,Cashback
+P1064,Controller,0.999206,Volume Discount,Cashback,Loyalty Program
+P1023,Modular Switches,0.996699,Volume Discount,Seasonal Offer,Cashback
+P1027,BBT,0.998401,Volume Discount,Cashback,Seasonal Offer
+P1055,Pump Starter and Controller,0.997364,Cashback,Seasonal Offer,Loyalty Program
+P1083,Modular Switches,0.998517,Seasonal Offer,Cashback,Loyalty Program
+P1081,Starter,0.999206,Seasonal Offer,Cashback,Volume Discount
+P1032,Pump Starter and Controller,0.997333,Seasonal Offer,Cashback,Loyalty Program
+P1063,PSS,0.999706,Cashback,Volume Discount,Seasonal Offer
+P1024,VCB,0.990925,Loyalty Program,Volume Discount,Seasonal Offer
