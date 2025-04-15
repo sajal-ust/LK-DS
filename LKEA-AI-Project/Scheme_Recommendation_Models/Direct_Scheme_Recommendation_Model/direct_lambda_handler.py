@@ -194,3 +194,70 @@ if __name__ == "__main__":
     response = lambda_handler({}, None)
     print(response)
 
+
+# Evaluation Code:
+import os
+import pandas as pd
+
+def lambda_handler(event=None, context=None):
+    approach = os.getenv("ACTIVE_APPROACH", "item_based")  # Default to item_based
+
+    if approach == "item_based":
+        rec_df = pd.read_csv("Scheme_Recommendations.csv")
+        print("Running ITEM-BASED evaluation...")
+    else:
+        rec_df = pd.read_csv("user_based_recommendations_enhanced.csv")
+        print("Running USER-BASED evaluation...")
+
+    test_df = pd.read_csv("test_data.csv")    availed_df = (
+        test_df.groupby("Partner_id")["Scheme_Type"]
+        .apply(list)
+        .reset_index()
+        .rename(columns={"Scheme_Type": "Availed_Schemes"})
+    )
+
+    rec_df["Recommended_Schemes"] = rec_df[["Scheme_1", "Scheme_2", "Scheme_3"]].values.tolist()
+
+    df_all = pd.merge(
+        availed_df,
+        rec_df[["Partner_id", "Recommended_Schemes"]],
+        on="Partner_id",
+        how="left"
+    )
+    df_all["Availed_Schemes"] = df_all["Availed_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
+    df_all["Recommended_Schemes"] = df_all["Recommended_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
+
+    k_list = [1, 2, 3]
+    results = []
+
+    for k in k_list:
+        precision_list, recall_list = [], []
+
+        for _, row in df_all.iterrows():
+            actual_set = set(row["Availed_Schemes"])
+            recommended_k = row["Recommended_Schemes"][:k]
+
+            if not actual_set:
+                continue
+            tp = sum(1 for scheme in recommended_k if scheme in actual_set)
+            precision = tp / k
+            recall = tp / len(actual_set)
+
+            precision_list.append(precision)
+            recall_list.append(recall)
+
+        avg_precision = round(sum(precision_list) / len(precision_list), 4) if precision_list else 0
+        avg_recall = round(sum(recall_list) / len(recall_list), 4) if recall_list else 0
+        f1 = round(2 * avg_precision * avg_recall / (avg_precision + avg_recall), 4) if (avg_precision + avg_recall) else 0
+
+        results.append((k, avg_precision, avg_recall, f1))
+
+    print(f"==== {approach.replace('_', ' ').title()} Per-Scheme Evaluation ====")
+    for k, p, r, f in results:
+        print(f"Top-{k}: Precision={p}, Recall={r}, F1={f}")
+
+print(f"Using {'Item-Based' if approach == 'item_based' else 'User-Based'} Evaluation")
+
+
+
+
