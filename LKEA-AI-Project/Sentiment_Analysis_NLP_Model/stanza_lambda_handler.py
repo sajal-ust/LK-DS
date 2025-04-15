@@ -18,7 +18,7 @@ if not logger.handlers:
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
 
     # Add file handler
-    file_handler = logging.FileHandler('app.log')
+    file_handler = logging.FileHandler('/tmp/app.log')
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
