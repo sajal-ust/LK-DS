@@ -1,0 +1,30 @@
+2025-04-15 13:24:11,998 - root - INFO - lambda_handler.py:41 - Successfully imported custom modules
+2025-04-15 13:24:14,260 - root - INFO - lambda_handler.py:51 - Running in Lambda mode: False
+2025-04-15 13:24:14,260 - root - INFO - lambda_handler.py:278 - Starting execution of lambda_handler
+2025-04-15 13:24:14,260 - root - INFO - lambda_handler.py:90 - Loading file locally: ./input_data/stockist_data_with_date.xlsx
+2025-04-15 13:24:19,261 - root - INFO - lambda_handler.py:100 - File loaded successfully: ./input_data/stockist_data_with_date.xlsx
+2025-04-15 13:24:19,261 - root - INFO - lambda_handler.py:135 - Running discount model pipeline...
+2025-04-15 13:26:10,288 - root - INFO - lambda_handler.py:161 - Saving forecast results locally...
+2025-04-15 13:26:10,402 - root - INFO - lambda_handler.py:164 - Discount model pipeline and file saving completed successfully.
+2025-04-15 13:26:10,403 - root - INFO - lambda_handler.py:90 - Loading file locally: ./output_folder/my_product_forecasts001_elasticity.csv
+2025-04-15 13:26:10,408 - root - INFO - lambda_handler.py:100 - File loaded successfully: ./output_folder/my_product_forecasts001_elasticity.csv
+2025-04-15 13:26:10,408 - root - INFO - lambda_handler.py:184 - Elasticity data loaded successfully with 47 records
+2025-04-15 13:26:10,409 - root - INFO - lambda_handler.py:209 - Elasticity value for RMU(Ring Main Unit) in West region: -0.0761168763851105
+2025-04-15 13:26:10,411 - root - INFO - lambda_handler.py:219 - Running simulation for price discount...
+2025-04-15 13:26:10,445 - root - INFO - lambda_handler.py:109 - Saving file locally: ./simulation_output/RMU(Ring Main Unit)_west_simulation.csv
+2025-04-15 13:26:10,451 - root - INFO - lambda_handler.py:111 - File saved successfully: ./simulation_output/RMU(Ring Main Unit)_west_simulation.csv
+2025-04-15 13:26:10,470 - root - INFO - lambda_handler.py:109 - Saving file locally: ./simulation_output/rmu_west_optimal_discounts.csv
+2025-04-15 13:26:10,470 - root - INFO - lambda_handler.py:111 - File saved successfully: ./simulation_output/rmu_west_optimal_discounts.csv
+2025-04-15 13:26:10,470 - root - INFO - lambda_handler.py:258 - Optimal discounts saved successfully.
+2025-04-15 13:26:10,479 - root - INFO - lambda_handler.py:259 - Sample optimal discounts:                 product region     price_bucket  price_midpoint  \
+0   RMU(Ring Main Unit)   West  2537.96-2784.72         2659.17   
+11  RMU(Ring Main Unit)   West  2784.72-3031.48         2908.06   
+22  RMU(Ring Main Unit)   West  3031.48-3278.24         3180.61   
+33  RMU(Ring Main Unit)   West  3278.24-3525.00         3404.03   
+
+    optimal_discount_pct  optimal_demand  max_revenue  
+0                      0         1168.08   3106123.29  
+11                     0         1365.86   3972002.83  
+22                     0         1284.83   4086543.15  
+33                     0         1434.75   4883932.04  
+2025-04-15 13:26:10,511 - root - INFO - lambda_handler.py:280 - Execution result: {'statusCode': 200, 'body': 'Execution completed successfully'}
