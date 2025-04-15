@@ -69,6 +69,9 @@ product_cols = [
 ]
 
 # -------------------- Product Recommendation --------------------
+# Configuration: Toggle to include already purchased products
+INCLUDE_PURCHASED_PRODUCTS = True  # Set to True to include purchased products in recommendations
+
 def generate_user_recommendations(df):
     user_product_matrix = df.set_index("Partner_id")[product_cols].astype(int)
     knn = NearestNeighbors(metric='cosine', algorithm='brute')
@@ -235,3 +238,107 @@ if __name__ == "__main__":
     os.environ["ANALYSIS_MODE"] = "lp"  # or lp
     print(lambda_handler({}, None))
 
+# Evaluation Code:
+import os
+import pandas as pd
+import boto3
+from io import StringIO
+
+# --------- ENV SETUP ---------
+approach = os.getenv("ACTIVE_APPROACH", "user_based")  # or "item_based"
+is_lambda = os.getenv("IS_LAMBDA", "False").lower() == "true"
+bucket_name = os.getenv("BUCKET_NAME", "your-default-bucket")  # S3 bucket
+
+# --------- FILE SETUP ---------
+recommendation_file = "User_Based_Recommendations.csv" if approach == "item_based" else "User_Based_Recommendations.csv"
+test_file = "test_data.csv"
+# --------- LOAD DATA ---------
+test_df = pd.read_csv(test_file)
+recommendations_df = pd.read_csv(recommendation_file)
+recommendations_df = recommendations_df.rename(columns={"Partner_ID": "Partner_id"})
+
+# Identify product columns
+meta_cols = [
+    'Partner_id', 'Stockist_Type', 'Scheme_Type', 'Sales_Value_Last_Period',
+    'Sales_Quantity_Last_Period', 'MRP', 'Growth_Percentage', 'Discount_Applied',
+    'Bulk_Purchase_Tendency', 'New_Stockist', 'Feedback_Score'
+]
+product_cols = [col for col in test_df.columns if col not in meta_cols]
+
+# Binary matrix
+test_df[product_cols] = test_df[product_cols].apply(pd.to_numeric, errors='coerce').fillna(0).astype(int)
+
+# Purchased product list
+test_df['Purchased_Products'] = test_df[product_cols].apply(
+    lambda row: [prod for prod, val in zip(product_cols, row) if val == 1], axis=1
+)
+test_df['has_purchase'] = test_df['Purchased_Products'].apply(lambda x: len(x) > 0)
+# Fix list parsing
+recommendations_df["Recommended_Products"] = recommendations_df["Recommended_Products"].apply(
+    lambda x: x if isinstance(x, list) else eval(x) if isinstance(x, str) else []
+)
+
+# Merge test and recommendations
+df_all = pd.merge(
+    test_df[['Partner_id', 'Purchased_Products', 'has_purchase']],
+    recommendations_df[['Partner_id', 'Recommended_Products']],
+    on='Partner_id',
+    how='left'
+)
+df_all['Recommended_Products'] = df_all['Recommended_Products'].apply(lambda x: x if isinstance(x, list) else [])
+
+# --------- EVALUATION ---------
+results = []
+
+for k in [1, 2, 3]:
+    precision_list = []
+    recall_list = []
+
+    for _, row in df_all.iterrows():
+        actual = set(row["Purchased_Products"])
+        predicted = row["Recommended_Products"][:k]
+        if not actual:           continue
+
+        tp = len(set(predicted) & actual)
+        precision = tp / k
+        recall = tp / len(actual)
+
+        precision_list.append(precision)
+        recall_list.append(recall)
+
+    avg_precision = round(sum(precision_list) / len(precision_list), 4) if precision_list else 0
+    avg_recall = round(sum(recall_list) / len(recall_list), 4) if recall_list else 0
+    f1_score = round(2 * avg_precision * avg_recall / (avg_precision + avg_recall), 4) if (avg_precision + avg_recall) else 0
+
+    results.append({
+        "Top-K": k,
+        "Avg Precision": avg_precision,
+        "Avg Recall": avg_recall,
+        "Avg F1 Score": f1_score
+    })
+
+# # --------- DISPLAY RESULTS ---------
+# print("===== Top-K Recommendation Evaluation =====")
+# for r in results:
+#     print(f"\nTop-{r['Top-K']}")#     print(f"  Avg Precision : {r['Avg Precision']}")
+#     print(f"  Avg Recall    : {r['Avg Recall']}")
+#     print(f"  Avg F1 Score  : {r['Avg F1 Score']}")
+
+# --------- SAVE RESULTS ---------
+output_file = f"{approach}_evaluation_metrics.csv"
+result_df = pd.DataFrame(results)
+
+if is_lambda:
+    # Upload to S3
+    s3 = boto3.client("s3")
+    csv_buffer = StringIO()
+    result_df.to_csv(csv_buffer, index=False)
+    s3.put_object(Bucket=bucket_name, Key=output_file, Body=csv_buffer.getvalue())
+    print(f"\n Uploaded to S3: s3://{bucket_name}/{output_file}")
+else:
+    # Save locally
+    result_df.to_csv(output_file, index=False)
+    print(f"\n Saved locally to: {output_file}")
+
+os.environ["ACTIVE_APPROACH"] = "user_based"
+os.environ["IS_LAMBDA"] = "False"
