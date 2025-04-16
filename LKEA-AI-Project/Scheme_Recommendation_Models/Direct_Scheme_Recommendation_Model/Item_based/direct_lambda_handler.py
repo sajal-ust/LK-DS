@@ -192,17 +192,11 @@ def lambda_handler(event, context):
 
 # -------------------- Local Execution --------------------
 if __name__ == "__main__":
-    os.environ["IS_LAMBDA"] = "false"
-    os.environ["ACTIVE_APPROACH"] = "item_based"  # or "user_based"
+    #os.environ["IS_LAMBDA"] = "false"
+    #os.environ["ACTIVE_APPROACH"] = "item_based"  # or "user_based"
     response = lambda_handler({}, None)
     print(response)
 
-# -------------------- Local Execution --------------------
-if __name__ == "__main__":
-    os.environ["IS_LAMBDA"] = "false"
-    os.environ["ACTIVE_APPROACH"] = "user_based"  # or "user_based"
-    response = lambda_handler({}, None)
-    print(response)
 
 
 
@@ -301,7 +295,7 @@ def evaluate_scheme_recommendations(test_df, rec_df):
     return pd.DataFrame(results)
 
 # ------------------ Lambda Handler ------------------
-def lambda_handler(event=None, context=None):
+def evaluation_handler(event=None, context=None):
     try:
         logger.info("===== Starting Lambda Evaluation Handler =====")
 
@@ -352,6 +346,16 @@ def lambda_handler(event=None, context=None):
 # ------------------ Local Trigger ------------------
 if __name__ == "__main__" and not is_lambda:
     lambda_handler()
+#-------------Execution Trigger-----------------
+if __name__ == "__main__":
+    if active_module == "recommendation":
+        response = recommendation_handler({}, None)
+        print(response)
+    elif active_module == "evaluation":
+        response = evaluation_handler()
+        print(response)
+    else:
+        logger.error(f"Unknown ACTIVE_MODULE: {active_module}")
 
 # export IS_LAMBDA=false
 # export ACTIVE_MODULE=evaluation
