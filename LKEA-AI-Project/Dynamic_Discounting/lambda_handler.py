@@ -2,7 +2,7 @@ import boto3
 import pandas as pd
 from io import BytesIO
 import logging
-import os  # To read environment variables for Lambda
+import os
 import sys
 
 # Set up logging
@@ -52,8 +52,8 @@ except ImportError as e:
 # Initialize S3 client
 s3_client = boto3.client('s3')
 
-def load_file_from_s3(bucket_name, file_key, local_path=None):
-    """Load file from S3 and return as a DataFrame"""
+def load_file_from_s3(bucket_name, file_key):
+    """Load file directly from S3 and return as a DataFrame without requiring a local file"""
     try:
         logger.info(f"Loading file from S3: {bucket_name}/{file_key}")
         response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
@@ -62,16 +62,8 @@ def load_file_from_s3(bucket_name, file_key, local_path=None):
         # Check file extension to determine how to read it
         if file_key.endswith('.xlsx') or file_key.endswith('.xls'):
             df = pd.read_excel(BytesIO(file_content))
-            # Optionally save locally
-            if local_path:
-                with open(local_path, 'wb') as f:
-                    f.write(file_content)
         elif file_key.endswith('.csv'):
             df = pd.read_csv(BytesIO(file_content))
-            # Optionally save locally
-            if local_path:
-                with open(local_path, 'wb') as f:
-                    f.write(file_content)
         else:
             raise ValueError(f"Unsupported file format for {file_key}")
             
@@ -117,6 +109,8 @@ def save_file_locally(df, file_path):
     """Save DataFrame to local filesystem as CSV"""
     try:
         logger.info(f"Saving file locally: {file_path}")
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         df.to_csv(file_path, index=False)
         logger.info(f"File saved successfully: {file_path}")
     except Exception as e:
@@ -126,10 +120,6 @@ def save_file_locally(df, file_path):
 # Custom wrapper for discount_model.save_results_to_csv that uses the correct directory
 def save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename):
     """Wrapper to modify the save_results_to_csv function behavior based on environment"""
-    
-    # This assumes discount_model.save_results_to_csv has a specific implementation
-    # where it saves files to './output_folder/'. We'll use a custom approach instead
-    # to ensure we use the correct BASE_DIR.
     
     # Create paths for each file type
     metrics_path = f"{BASE_DIR}/output_folder/{base_filename}_metrics.csv"
@@ -181,11 +171,14 @@ def lambda_handler(event, context):
     input_file_path = f"{BASE_DIR}/input_data/stockist_data_with_date.xlsx"
     
     try:
-        # Running in AWS Lambda, load data from S3
         if is_lambda:
-            df = load_file_from_s3(input_bucket, input_file_key, local_path=input_file_path)
+            # When running in Lambda, ALWAYS load data directly from S3
+            # without trying to access the local file first
+            logger.info("Loading input data from S3 in Lambda environment")
+            df = load_file_from_s3(input_bucket, input_file_key)
         else:
             # Running locally, load data from the local filesystem
+            logger.info("Loading input data from local filesystem")
             df = load_file_locally(input_file_path)
     except Exception as e:
         logger.error(f"Failed to load input data: {e}")
@@ -234,7 +227,7 @@ def lambda_handler(event, context):
 
     try:
         if is_lambda:
-            # Load from S3 if running on Lambda
+            # In Lambda, always load from S3 directly
             elasticity_df = load_file_from_s3(output_bucket, elasticity_file_key)
         else:
             # Load from local file if running locally
@@ -288,14 +281,14 @@ def lambda_handler(event, context):
             simulation_output_key = f"simulation_output/{product_name}_west_simulation.csv"
             simulation_output_path = f"{BASE_DIR}/simulation_output/{product_name}_west_simulation.csv"
             
-            # Save locally and to S3 if needed
+            # Save locally first
             save_file_locally(simulation_result, simulation_output_path)
             
             if is_lambda:
+                # Save directly to S3 when in Lambda
                 save_file_to_s3(simulation_result, output_bucket, simulation_output_key)
 
-            # Handle optimal discounts - adjust the simulation.save_optimal_discounts function
-            # to accept a custom path if needed
+            # Handle optimal discounts
             optimal_discounts_output_path = f"{BASE_DIR}/simulation_output/rmu_west_optimal_discounts.csv"
             
             # This assumes simulation.save_optimal_discounts returns a DataFrame and also saves it
