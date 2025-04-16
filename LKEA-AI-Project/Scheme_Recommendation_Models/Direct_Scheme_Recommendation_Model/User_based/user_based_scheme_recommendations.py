@@ -14,7 +14,7 @@ from sklearn.neighbors import NearestNeighbors
 from scipy.sparse import csr_matrix
 
 # Load dataset
-df = pd.read_csv("Augmented_Stockist_Data.csv")
+df = pd.read_csv("Augmented_Stockist_Data (1).csv")
 
 # # # One-hot encoding for Geography and Stockist_Type
 # df = pd.get_dummies(df, columns=["Geography", "Stockist_Type"], dtype=int)
