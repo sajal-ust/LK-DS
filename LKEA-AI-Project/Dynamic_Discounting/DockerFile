@@ -1,5 +1,8 @@
 FROM public.ecr.aws/lambda/python:3.9
 
+# Set environment variable for Lambda execution
+ENV IS_LAMBDA=true
+
 # Copy requirements.txt
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
 
@@ -11,14 +14,10 @@ COPY lambda_handler.py ${LAMBDA_TASK_ROOT}
 COPY discount_model.py ${LAMBDA_TASK_ROOT}
 COPY simulation.py ${LAMBDA_TASK_ROOT}
 
-# Create necessary directories
-RUN mkdir -p ${LAMBDA_TASK_ROOT}/input_data
-RUN mkdir -p ${LAMBDA_TASK_ROOT}/output_folder
-RUN mkdir -p ${LAMBDA_TASK_ROOT}/simulation_output
-
-# Copy data folders if needed (commented out as Lambda might not need these at build time)
-# COPY input_data/ ${LAMBDA_TASK_ROOT}/input_data/
-# COPY Notebooks/ ${LAMBDA_TASK_ROOT}/Notebooks/
+# Create necessary tmp directories
+RUN mkdir -p /tmp/input_data
+RUN mkdir -p /tmp/output_folder
+RUN mkdir -p /tmp/simulation_output
 
 # Set the CMD to your handler
 CMD [ "lambda_handler.lambda_handler" ]
