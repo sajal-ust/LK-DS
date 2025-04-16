@@ -126,27 +126,69 @@ def save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename):
     forecasts_path = f"{BASE_DIR}/output_folder/{base_filename}_forecasts.csv"
     comparisons_path = f"{BASE_DIR}/output_folder/{base_filename}_comparisons.csv"
     elasticity_path = f"{BASE_DIR}/output_folder/{base_filename}_elasticity.csv"
-    
-    # Save each dataframe directly to the correct path
+
     try:
         # Save metrics
         metrics_df.to_csv(metrics_path, index=False)
         logger.info(f"Saved metrics to {metrics_path}")
-        
-        # Save forecasts
-        if 'forecasts' in detailed_results:
-            detailed_results['forecasts'].to_csv(forecasts_path, index=False)
+
+        # Decode detailed_results into forecast, comparison, and elasticity data
+        forecast_data = []
+        comparison_data = []
+        elasticity_data = []
+
+        for result in detailed_results:
+            if result.get('forecast') is not None:
+                last_date = result['actual'].index[-1] if isinstance(result['actual'], pd.Series) else pd.Timestamp.now()
+                dates = pd.date_range(start=last_date + pd.offsets.MonthBegin(1),
+                                      periods=len(result['forecast']),
+                                      freq='MS')
+
+                forecast_data.append(pd.DataFrame({
+                    'product': result['product'],
+                    'region': result['region'],
+                    'date': dates.strftime('%Y-%m-%d'),
+                    'forecast': result['forecast']
+                }))
+
+            if result.get('actual') is not None and result.get('predicted') is not None:
+                if isinstance(result['actual'], pd.Series):
+                    dates = result['actual'].index
+                else:
+                    dates = pd.date_range(
+                        end=pd.Timestamp.now(),
+                        periods=len(result['actual']),
+                        freq='MS'
+                    )
+
+                comparison_data.append(pd.DataFrame({
+                    'product': result['product'],
+                    'region': result['region'],
+                    'elasticity': result.get('elasticity'),
+                    'date': dates.strftime('%Y-%m-%d'),
+                    'actual': result['actual'],
+                    'predicted': result['predicted']
+                }))
+
+            if 'elasticity' in result:
+                elasticity_data.append({
+                    'product': result['product'],
+                    'region': result['region'],
+                    'price_elasticity': result['elasticity']
+                })
+
+        if forecast_data:
+            pd.concat(forecast_data).to_csv(forecasts_path, index=False)
             logger.info(f"Saved forecasts to {forecasts_path}")
-        
-        # Save comparisons
-        if 'comparisons' in detailed_results:
-            detailed_results['comparisons'].to_csv(comparisons_path, index=False)
+
+        if comparison_data:
+            pd.concat(comparison_data).to_csv(comparisons_path, index=False)
             logger.info(f"Saved comparisons to {comparisons_path}")
-        
-        # Save elasticity
-        if 'elasticity' in detailed_results:
-            detailed_results['elasticity'].to_csv(elasticity_path, index=False)
+
+        if elasticity_data:
+            pd.DataFrame(elasticity_data).to_csv(elasticity_path, index=False)
             logger.info(f"Saved elasticity to {elasticity_path}")
+
     except Exception as e:
         logger.error(f"Error saving results: {e}")
         raise
