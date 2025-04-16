@@ -206,7 +206,7 @@ def lambda_handler(event, context):
     # Input and output S3 bucket details
     input_bucket = "lk-dynamic-discount"
     output_bucket = "lk-dynamic-discount"
-    base_filename = "my_product_forecasts001"
+    base_filename = event.get("model_run_date", "my_product_forecasts2025")
 
     # Set file paths based on execution environment
     input_file_key = "input_data/stockist_data_with_date.xlsx"
@@ -283,24 +283,29 @@ def lambda_handler(event, context):
             'body': f"Error loading elasticity data: {e}"
         }
 
-    # Filter elasticity for specific product and region
-    product_name = "RMU(Ring Main Unit)"
-    region_name = "West"
     try:
+        # Get product and region from Lambda event
+        product_name = event.get("product_name", "RMU(Ring Main Unit)")
+        region_name = event.get("region_name", "West")
+        
+        logger.info(f"Received input - Product: {product_name}, Region: {region_name}")
+
+        # Filter elasticity for the given product and region
         filtered_elasticity = elasticity_df[
-            (elasticity_df['product'] == product_name) & 
+            (elasticity_df['product'] == product_name) &
             (elasticity_df['region'] == region_name)
         ]
-        
+
         if len(filtered_elasticity) == 0:
             logger.error(f"No elasticity found for {product_name} in {region_name}")
             return {
                 'statusCode': 404,
                 'body': f"No elasticity found for {product_name} in {region_name}"
             }
-            
+
         product_elasticity = filtered_elasticity['price_elasticity'].values[0]
-        logger.info(f"Elasticity value for {product_name} in {region_name} region: {product_elasticity}")
+        logger.info(f"Elasticity value for {product_name} in {region_name}: {product_elasticity}")
+
     except Exception as e:
         logger.error(f"Error filtering elasticity data: {e}")
         return {
@@ -308,7 +313,7 @@ def lambda_handler(event, context):
             'body': f"Error filtering elasticity data: {e}"
         }
 
-    # Run simulation logic from simulation.py
+    # Run simulation logic
     try:
         logger.info("Running simulation for price discount...")
         simulation_result = simulation.create_price_discount_simulation(
@@ -319,34 +324,34 @@ def lambda_handler(event, context):
         )
 
         if simulation_result is not None:
-            # Set file paths for simulation output
-            simulation_output_key = f"simulation_output/{product_name}_west_simulation.csv"
-            simulation_output_path = f"{BASE_DIR}/simulation_output/{product_name}_west_simulation.csv"
-            
-            # Save locally first
+            # Normalize filenames
+
+            # Paths
+            simulation_output_key = f"simulation_output/{product_name}_{region_name}_simulation.csv"
+            simulation_output_path = f"{BASE_DIR}/simulation_output/{product_name}_{region_name}_simulation.csv"
+
+            # Save locally
             save_file_locally(simulation_result, simulation_output_path)
             
             if is_lambda:
-                # Save directly to S3 when in Lambda
                 save_file_to_s3(simulation_result, output_bucket, simulation_output_key)
 
             # Handle optimal discounts
-            optimal_discounts_output_path = f"{BASE_DIR}/simulation_output/rmu_west_optimal_discounts.csv"
-            
-            # This assumes simulation.save_optimal_discounts returns a DataFrame and also saves it
+            optimal_discounts_output_path = f"{BASE_DIR}/simulation_output/{product_name}_{region_name}_optimal_discounts.csv"
             optimal_discounts = simulation.save_optimal_discounts(
-                simulation_result, 
+                simulation_result,
                 filename=optimal_discounts_output_path
             )
-            
+
             if is_lambda:
-                optimal_discounts_output_key = "simulation_output/rmu_west_optimal_discounts.csv"
+                optimal_discounts_output_key = f"simulation_output/{product_name}_{region_name}_optimal_discounts.csv"
                 save_file_to_s3(optimal_discounts, output_bucket, optimal_discounts_output_key)
 
             logger.info("Optimal discounts saved successfully.")
             logger.info(f"Sample optimal discounts: {optimal_discounts.head()}")
         else:
             logger.warning("No simulation result was generated.")
+
     except Exception as e:
         logger.error(f"Error during simulation pipeline: {e}")
         return {
@@ -356,7 +361,7 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': "Execution completed successfully"
+        'body': f"Execution completed successfully for {product_name} in {region_name}"
     }
 
 
