@@ -226,11 +226,15 @@ if not logger.handlers:
 
 # ------------------ ENV Setup ------------------
 is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
-bucket_name = os.getenv("BUCKET_NAME", "")
+# bucket_name = os.getenv("BUCKET_NAME", "")
+bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
 active_module = os.getenv("ACTIVE_MODULE", "evaluation")  # default to evaluation
 test_file_key = "test_data.csv"
 rec_file_key = "Scheme_Recommendations.csv"
 output_file = "Scheme_Evaluation_Metrics.csv"
+
+# ------------------ Log the ENV Config ------------------
+logger.info(f"[ENV] IS_LAMBDA={is_lambda}, ACTIVE_MODULE={active_module}, BUCKET_NAME={bucket_name}")
 
 # ------------------ S3 Helpers ------------------
 def read_csv_from_s3(key):
