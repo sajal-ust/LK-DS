@@ -149,7 +149,7 @@ def save_optimal_discounts(simulation_df, filename="optimal_discounts.csv"):
     optimal_df['price_midpoint'] = optimal_df['price_midpoint'].round(2)
     optimal_df['max_revenue'] = optimal_df['max_revenue'].round(2)
 
-    optimal_df.to_csv(filename, index=False)
+    # optimal_df.to_csv(filename, index=False)
     print(f"Saved optimal discounts to {filename}")
     return optimal_df
 
