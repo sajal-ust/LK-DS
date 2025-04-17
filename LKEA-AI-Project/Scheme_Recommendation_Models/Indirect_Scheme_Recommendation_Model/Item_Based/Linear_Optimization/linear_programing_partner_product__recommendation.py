@@ -79,7 +79,8 @@ optimized_schemes = (
 )
 
 # Split the list of 3 schemes (returned by the function) into separate columns: Scheme_1, Scheme_2, Scheme_3
-optimized_schemes[["Scheme_1", "Scheme_2", "Scheme_3"]] = pd.DataFrame(optimized_schemes[0].tolist(), index=optimized_schemes.index)
+optimized_schemes[["Scheme_1", "Scheme_2", "Scheme_3"]] = pd.DataFrame(optimized_schemes[0].to_list(), index=optimized_schemes.index)
+
 # Drop the original column that contained the list of schemes (now that we've split it into 3 separate columns)
 optimized_schemes = optimized_schemes.drop(columns=[0])
 
