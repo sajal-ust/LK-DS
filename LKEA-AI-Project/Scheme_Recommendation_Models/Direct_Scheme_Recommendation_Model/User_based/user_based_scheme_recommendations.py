@@ -38,8 +38,12 @@ df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (
 train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Partner_id"])
 
 # Pivot User-Scheme Matrix using Engagement Score
+# user_scheme_matrix = train_df.pivot_table(
+#     index="Partner_id", columns="Scheme_Type", values="Engagement_Score", aggfunc="sum", fill_value=0
+# )
+# Pivot User-Scheme Matrix using Engagement Score
 user_scheme_matrix = train_df.pivot_table(
-    index="Partner_id", columns="Scheme_Type", values="Engagement_Score", aggfunc="sum", fill_value=0
+    index="Partner_id", columns="Scheme_Type", values="Engagement_Score", aggfunc="mean", fill_value=0
 )
 train_df.to_csv("train_data.csv", index=False)
 test_df.to_csv("test_data.csv", index=False)
