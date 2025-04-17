@@ -367,13 +367,13 @@ def lambda_handler(event, context):
             optimal_discounts_output_path = f"{BASE_DIR}/simulation_output/{product_name}_{region_name}_optimal_discounts.csv"
             optimal_discounts = simulation.save_optimal_discounts(
                 simulation_result,
-                filename=optimal_discounts_output_path
+                filename=optimal_discounts_output_key
             )
 
             if is_lambda:
                 save_file_to_s3(optimal_discounts, output_bucket, optimal_discounts_output_key)
             else:
-                save_file_locally(optimal_discounts, optimal_discounts_output_key)
+                save_file_locally(optimal_discounts, optimal_discounts_output_path)
 
 
             logger.info("Optimal discounts saved successfully.")
