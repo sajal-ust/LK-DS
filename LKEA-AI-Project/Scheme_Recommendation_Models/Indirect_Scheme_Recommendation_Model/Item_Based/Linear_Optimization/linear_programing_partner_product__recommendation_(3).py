@@ -13,7 +13,7 @@ import numpy as np# Used for working with numbers and arrays
 
 # Load dataset
 # Reads the CSV file and stores the data in a table called 'df'
-df = pd.read_csv("stockist_data.csv.csv")
+df = pd.read_csv("stockist_data.csv")
 
 # Define metadata columns
 metadata_cols = ['Partner_id', 'Geography', 'Stockist_Type', 'Scheme_Type', 'Sales_Value_Last_Period',
