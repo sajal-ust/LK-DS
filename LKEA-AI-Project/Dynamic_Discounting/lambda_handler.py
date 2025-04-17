@@ -136,57 +136,87 @@ def save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename):
         forecast_data = []
         comparison_data = []
         elasticity_data = []
+        logger.info(f"Decoding results into File")
+        logger.info(f"Detailed results head: {detailed_results[:5]}")
 
         for result in detailed_results:
-            if result.get('forecast') is not None:
-                last_date = result['actual'].index[-1] if isinstance(result['actual'], pd.Series) else pd.Timestamp.now()
-                dates = pd.date_range(start=last_date + pd.offsets.MonthBegin(1),
-                                      periods=len(result['forecast']),
-                                      freq='MS')
-
-                forecast_data.append(pd.DataFrame({
-                    'product': result['product'],
-                    'region': result['region'],
-                    'date': dates.strftime('%Y-%m-%d'),
-                    'forecast': result['forecast']
+            if result['forecast'] is None:
+                continue
+                
+            # Create future dates starting next month
+            last_date = result['actual'].index[-1] if isinstance(result['actual'], pd.Series) else pd.Timestamp.now()
+            dates = pd.date_range(
+                start=last_date + pd.offsets.MonthBegin(1),
+                periods=len(result['forecast']),
+                freq='MS'
+            )
+            
+            forecast_data.append(pd.DataFrame({
+            'product': result['product'],
+            'region': result['region'],
+            'date': dates.strftime('%Y-%m-%d'),
+            'forecast': result['forecast']  # Already in original units
                 }))
-
-            if result.get('actual') is not None and result.get('predicted') is not None:
-                if isinstance(result['actual'], pd.Series):
-                    dates = result['actual'].index
-                else:
-                    dates = pd.date_range(
-                        end=pd.Timestamp.now(),
-                        periods=len(result['actual']),
-                        freq='MS'
-                    )
-
-                comparison_data.append(pd.DataFrame({
-                    'product': result['product'],
-                    'region': result['region'],
-                    'elasticity': result.get('elasticity'),
-                    'date': dates.strftime('%Y-%m-%d'),
-                    'actual': result['actual'],
-                    'predicted': result['predicted']
-                }))
-
+            # Elasticity DataFrame (simple product-region mapping)
             if 'elasticity' in result:
                 elasticity_data.append({
                     'product': result['product'],
-                    'region': result['region'],
+                    'region': result['region'], 
                     'price_elasticity': result['elasticity']
                 })
+    
+        # if forecast_data:
+        #     pd.concat(forecast_data).to_csv(f"{base_filename}_forecasts.csv", index=False)
+        
+        # 3. Save actual vs predicted comparisons
+        comparison_data = []
+        for result in detailed_results:
+            if result.get('actual') is None or result.get('predicted') is None:
+                continue
+                
+            # Get existing dates or create default range
+            if isinstance(result['actual'], pd.Series):
+                dates = result['actual'].index
+            else:
+                dates = pd.date_range(
+                    end=pd.Timestamp.now(),
+                    periods=len(result['actual']),
+                    freq='MS'
+            )
+        
+        comparison_data.append(pd.DataFrame({
+            'product': result['product'],
+            'region': result['region'],
+            'elasticity': result['elasticity'],
+            'date': dates.strftime('%Y-%m-%d'),
+            'actual': result['actual'],  # Already in original units
+            'predicted': result['predicted']  # Already in original units
+        }))
+    
+        # if comparison_data:
+        #     pd.concat(comparison_data).to_csv(f"{base_filename}_comparisons.csv", index=False)
+
+        # if elasticity_data:
+        #     pd.DataFrame(elasticity_data).to_csv(f"{base_filename}_elasticity.csv", index=False)
+            
+        if len(forecast_data) > 0:
+            logger.info(f"first element type: {type(forecast_data[0])}")
+            result_df = pd.concat(forecast_data)
+            logger.info(f"concatenation successful, shape:: {result_df.shape}")
 
         if forecast_data:
-            pd.concat(forecast_data).to_csv(forecasts_path, index=False)
+            forecast_df = pd.concat(forecast_data)
+            forecast_df.to_csv(forecasts_path, index=False)
             logger.info(f"Saved forecasts to {forecasts_path}")
 
         if comparison_data:
-            pd.concat(comparison_data).to_csv(comparisons_path, index=False)
+            comparison_df = pd.concat(comparison_data)
+            comparison_df.to_csv(comparisons_path, index=False)
             logger.info(f"Saved comparisons to {comparisons_path}")
 
         if elasticity_data:
-            pd.DataFrame(elasticity_data).to_csv(elasticity_path, index=False)
+            elasticity_df = pd.DataFrame(elasticity_data)
+            elasticity_df.to_csv(elasticity_path, index=False)
             logger.info(f"Saved elasticity to {elasticity_path}")
 
     except Exception as e:
