@@ -120,22 +120,15 @@ def save_file_locally(df, file_path):
 # Custom wrapper for discount_model.save_results_to_csv that uses the correct directory
 def save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename):
     """Wrapper to modify the save_results_to_csv function behavior based on environment"""
-    
-    # Create paths for each file type
-    metrics_path = f"{BASE_DIR}/output_folder/{base_filename}_metrics.csv"
-    forecasts_path = f"{BASE_DIR}/output_folder/{base_filename}_forecasts.csv"
-    comparisons_path = f"{BASE_DIR}/output_folder/{base_filename}_comparisons.csv"
-    elasticity_path = f"{BASE_DIR}/output_folder/{base_filename}_elasticity.csv"
 
     try:
-        # Save metrics
-        metrics_df.to_csv(metrics_path, index=False)
-        logger.info(f"Saved metrics to {metrics_path}")
-
         # Decode detailed_results into forecast, comparison, and elasticity data
         forecast_data = []
         comparison_data = []
         elasticity_data = []
+        forecast_df = pd.DataFrame()
+        comparison_df = pd.DataFrame()
+        elasticity_df = pd.DataFrame()
         logger.info(f"Decoding results into File")
         logger.info(f"Detailed results head: {detailed_results[:5]}")
 
@@ -202,22 +195,23 @@ def save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename):
         if len(forecast_data) > 0:
             logger.info(f"first element type: {type(forecast_data[0])}")
             result_df = pd.concat(forecast_data)
-            logger.info(f"concatenation successful, shape:: {result_df.shape}")
+            # logger.info(f"concatenation successful, shape:: {result_df.shape}")
 
         if forecast_data:
             forecast_df = pd.concat(forecast_data)
-            forecast_df.to_csv(forecasts_path, index=False)
-            logger.info(f"Saved forecasts to {forecasts_path}")
+            # forecast_df.to_csv(forecasts_path, index=False)
+            # logger.info(f"Saved forecasts to {forecasts_path}")
 
         if comparison_data:
             comparison_df = pd.concat(comparison_data)
-            comparison_df.to_csv(comparisons_path, index=False)
-            logger.info(f"Saved comparisons to {comparisons_path}")
+            # comparison_df.to_csv(comparisons_path, index=False)
+            # logger.info(f"Saved comparisons to {comparisons_path}")
 
         if elasticity_data:
             elasticity_df = pd.DataFrame(elasticity_data)
-            elasticity_df.to_csv(elasticity_path, index=False)
-            logger.info(f"Saved elasticity to {elasticity_path}")
+            # elasticity_df.to_csv(elasticity_path, index=False)
+            # logger.info(f"Saved elasticity to {elasticity_path}")
+        return metrics_df, forecast_df, comparison_df, elasticity_df
 
     except Exception as e:
         logger.error(f"Error saving results: {e}")
@@ -267,23 +261,36 @@ def lambda_handler(event, context):
         metrics_df, detailed_results = discount_model.run_forecast_pipeline(monthly_df)
         
         # Save results using our wrapper function
-        save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename)
-        
+        metrics_df, forecast_df, comparison_df, elasticity_df = save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename)
+        df_list = [metrics_df, forecast_df, comparison_df, elasticity_df]
         # If running in Lambda, upload files to S3
         if is_lambda:
             file_types = ["metrics", "forecasts", "comparisons", "elasticity"]
-            for file_type in file_types:
-                local_path = f"{BASE_DIR}/output_folder/{base_filename}_{file_type}.csv"
+            for file_type, df_to_upload in zip(file_types, df_list):
+                # local_path = f"{BASE_DIR}/output_folder/{base_filename}_{file_type}.csv"
                 s3_key = f"output_folder/{base_filename}_{file_type}.csv"
                 
                 # Check if the file exists before uploading
-                if os.path.exists(local_path):
-                    logger.info(f"Uploading {file_type} file to S3: {s3_key}")
-                    # Load and save directly to S3
-                    df_to_upload = pd.read_csv(local_path)
-                    save_file_to_s3(df_to_upload, output_bucket, s3_key)
-                else:
-                    logger.warning(f"File not found for upload: {local_path}")
+                # if os.path.exists(local_path):
+                #     logger.info(f"Uploading {file_type} file to S3: {s3_key}")
+                #     # Load and save directly to S3
+                #     df_to_upload = pd.read_csv(local_path)
+                save_file_to_s3(df_to_upload, output_bucket, s3_key)
+        else:
+            # Create paths for each file type
+            metrics_path = f"{BASE_DIR}/output_folder/{base_filename}_metrics.csv"
+            forecasts_path = f"{BASE_DIR}/output_folder/{base_filename}_forecasts.csv"
+            comparisons_path = f"{BASE_DIR}/output_folder/{base_filename}_comparisons.csv"
+            elasticity_path = f"{BASE_DIR}/output_folder/{base_filename}_elasticity.csv"
+            # Save metrics
+            metrics_df.to_csv(metrics_path, index=False)
+            logger.info(f"Saved metrics to {metrics_path}")
+            forecast_df.to_csv(forecasts_path, index=False)
+            logger.info(f"Saved forecasts to {forecasts_path}")
+            comparison_df.to_csv(comparisons_path, index=False)
+            logger.info(f"Saved comparisons to {comparisons_path}")
+            elasticity_df.to_csv(elasticity_path, index=False)
+            logger.info(f"Saved elasticity to {elasticity_path}")            
         
         logger.info("Discount model pipeline and file saving completed successfully.")
     except Exception as e:
