@@ -234,8 +234,8 @@ def lambda_handler(event, context):
         logger.info(f"Updated Lambda mode: {is_lambda}, BASE_DIR: {BASE_DIR}")
     
     # Input and output S3 bucket details
-    input_bucket = "lk-dynamic-discount"
-    output_bucket = "lk-dynamic-discount"
+    input_bucket = "lk-dynamic-discount-1"
+    output_bucket = "lk-dynamic-discount-1"
     base_filename = event.get("model_run_date", "my_product_forecasts2025")
 
     # Set file paths based on execution environment
