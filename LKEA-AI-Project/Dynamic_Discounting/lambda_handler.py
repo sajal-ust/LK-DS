@@ -157,9 +157,6 @@ def save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename):
                     'region': result['region'], 
                     'price_elasticity': result['elasticity']
                 })
-    
-        # if forecast_data:
-        #     pd.concat(forecast_data).to_csv(f"{base_filename}_forecasts.csv", index=False)
         
         # 3. Save actual vs predicted comparisons
         comparison_data = []
@@ -186,31 +183,20 @@ def save_results_to_csv_wrapper(metrics_df, detailed_results, base_filename):
             'predicted': result['predicted']  # Already in original units
         }))
     
-        # if comparison_data:
-        #     pd.concat(comparison_data).to_csv(f"{base_filename}_comparisons.csv", index=False)
-
-        # if elasticity_data:
-        #     pd.DataFrame(elasticity_data).to_csv(f"{base_filename}_elasticity.csv", index=False)
             
         if len(forecast_data) > 0:
             logger.info(f"first element type: {type(forecast_data[0])}")
             result_df = pd.concat(forecast_data)
-            # logger.info(f"concatenation successful, shape:: {result_df.shape}")
 
         if forecast_data:
             forecast_df = pd.concat(forecast_data)
-            # forecast_df.to_csv(forecasts_path, index=False)
-            # logger.info(f"Saved forecasts to {forecasts_path}")
-
+    
         if comparison_data:
             comparison_df = pd.concat(comparison_data)
-            # comparison_df.to_csv(comparisons_path, index=False)
-            # logger.info(f"Saved comparisons to {comparisons_path}")
 
         if elasticity_data:
             elasticity_df = pd.DataFrame(elasticity_data)
-            # elasticity_df.to_csv(elasticity_path, index=False)
-            # logger.info(f"Saved elasticity to {elasticity_path}")
+
         return metrics_df, forecast_df, comparison_df, elasticity_df
 
     except Exception as e:
@@ -367,13 +353,17 @@ def lambda_handler(event, context):
             simulation_output_key = f"simulation_output/{product_name}_{region_name}_simulation.csv"
             simulation_output_path = f"{BASE_DIR}/simulation_output/{product_name}_{region_name}_simulation.csv"
 
-            # Save locally
-            save_file_locally(simulation_result, simulation_output_path)
+            
             
             if is_lambda:
                 save_file_to_s3(simulation_result, output_bucket, simulation_output_key)
+            else:
+                # Save locally
+                save_file_locally(simulation_result, simulation_output_path)
+
 
             # Handle optimal discounts
+            optimal_discounts_output_key = f"simulation_output/{product_name}_{region_name}_optimal_discounts.csv"
             optimal_discounts_output_path = f"{BASE_DIR}/simulation_output/{product_name}_{region_name}_optimal_discounts.csv"
             optimal_discounts = simulation.save_optimal_discounts(
                 simulation_result,
@@ -381,8 +371,10 @@ def lambda_handler(event, context):
             )
 
             if is_lambda:
-                optimal_discounts_output_key = f"simulation_output/{product_name}_{region_name}_optimal_discounts.csv"
                 save_file_to_s3(optimal_discounts, output_bucket, optimal_discounts_output_key)
+            else:
+                save_file_locally(optimal_discounts, optimal_discounts_output_key)
+
 
             logger.info("Optimal discounts saved successfully.")
             logger.info(f"Sample optimal discounts: {optimal_discounts.head()}")
