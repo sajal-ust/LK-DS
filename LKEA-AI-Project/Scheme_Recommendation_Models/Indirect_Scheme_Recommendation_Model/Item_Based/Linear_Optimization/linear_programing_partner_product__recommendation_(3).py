@@ -71,7 +71,13 @@ def optimize_schemes(product_group):
 # Apply optimization
 # Apply the optimization function to each product to get the best 3 schemes
 # This runs the 'optimize_schemes' function for each unique 'Product_id'
-optimized_schemes = optimization_data.groupby("Product_id").apply(optimize_schemes).reset_index()
+optimized_schemes = (
+    optimization_data
+    .groupby("Product_id", group_keys=False)
+    .apply(optimize_schemes)
+    .reset_index(drop=True)
+)
+
 # Split the list of 3 schemes (returned by the function) into separate columns: Scheme_1, Scheme_2, Scheme_3
 optimized_schemes[["Scheme_1", "Scheme_2", "Scheme_3"]] = pd.DataFrame(optimized_schemes[0].tolist(), index=optimized_schemes.index)
 # Drop the original column that contained the list of schemes (now that we've split it into 3 separate columns)
