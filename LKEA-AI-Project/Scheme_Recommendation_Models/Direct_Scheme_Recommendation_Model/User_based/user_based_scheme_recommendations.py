@@ -517,28 +517,68 @@ def compute_item_based_recommendations(df):
     return pd.DataFrame(recommendations)
 
 # -------------------- Evaluation --------------------
-def evaluate_scheme_recommendations(test_df, rec_df):
-    test_df = test_df.groupby("Partner_id")["Scheme_Type"].apply(list).reset_index().rename(columns={"Scheme_Type": "Availed_Schemes"})
-    rec_df["Recommended_Schemes"] = rec_df[["Scheme_1", "Scheme_2", "Scheme_3"]].values.tolist()
-    merged = pd.merge(test_df, rec_df[["Partner_id", "Recommended_Schemes"]], on="Partner_id", how="left")
-    merged["Availed_Schemes"] = merged["Availed_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
-    merged["Recommended_Schemes"] = merged["Recommended_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
-    results = []
-    for k in [1, 2, 3]:
-        precisions, recalls = [], []
-        for _, row in merged.iterrows():
-            actual = set(row["Availed_Schemes"])
-            if not actual:
-                continue
-            predicted = row["Recommended_Schemes"][:k]
-            tp = len(set(predicted) & actual)
-            precisions.append(tp / k)
-            recalls.append(tp / len(actual))
-        ap = round(sum(precisions) / len(precisions), 4) if precisions else 0
-        ar = round(sum(recalls) / len(recalls), 4) if recalls else 0
-        f1 = round(2 * ap * ar / (ap + ar), 4) if ap + ar else 0
-        results.append({"Top-K": k, "Avg Precision": ap, "Avg Recall": ar, "Avg F1 Score": f1})
-    return pd.DataFrame(results)
+# def evaluate_scheme_recommendations(test_df, rec_df):
+#     test_df = test_df.groupby("Partner_id")["Scheme_Type"].apply(list).reset_index().rename(columns={"Scheme_Type": "Availed_Schemes"})
+#     rec_df["Recommended_Schemes"] = rec_df[["Scheme_1", "Scheme_2", "Scheme_3"]].values.tolist()
+#     merged = pd.merge(test_df, rec_df[["Partner_id", "Recommended_Schemes"]], on="Partner_id", how="left")
+#     merged["Availed_Schemes"] = merged["Availed_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
+#     merged["Recommended_Schemes"] = merged["Recommended_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
+#     results = []
+#     for k in [1, 2, 3]:
+#         precisions, recalls = [], []
+#         for _, row in merged.iterrows():
+#             actual = set(row["Availed_Schemes"])
+#             if not actual:
+#                 continue
+#             predicted = row["Recommended_Schemes"][:k]
+#             tp = len(set(predicted) & actual)
+#             precisions.append(tp / k)
+#             recalls.append(tp / len(actual))
+#         ap = round(sum(precisions) / len(precisions), 4) if precisions else 0
+#         ar = round(sum(recalls) / len(recalls), 4) if recalls else 0
+#         f1 = round(2 * ap * ar / (ap + ar), 4) if ap + ar else 0
+#         results.append({"Top-K": k, "Avg Precision": ap, "Avg Recall": ar, "Avg F1 Score": f1})
+#     return pd.DataFrame(results)
+
+def evaluation_handler():
+    test_df = read_csv_from_s3(test_file_key) if is_lambda else pd.read_csv("test_data.csv")
+    rec_df = read_csv_from_s3(recommendation_output_file) if is_lambda else pd.read_csv("Final_Recommendations.csv")
+
+    try:
+        logger.info(f"[Before Fix] Recommendation columns: {rec_df.columns.tolist()}")
+
+        expected_cols = {"Partner_id", "Scheme_1", "Scheme_2", "Scheme_3"}
+        if not expected_cols.issubset(set(rec_df.columns)):
+            logger.warning("⚠ Detected malformed recommendation file. Attempting header fix...")
+            
+            if is_lambda:
+                obj = s3_client.get_object(Bucket=bucket_name, Key=recommendation_output_file)
+                rec_df = pd.read_csv(BytesIO(obj["Body"].read()), header=None)
+            else:
+                rec_df = pd.read_csv("Final_Recommendations.csv", header=None)
+
+            # Assign headers
+            rec_df.columns = ["Partner_id", "Product_id", "Similarity_Score", "Scheme_1", "Scheme_2", "Scheme_3"]
+            logger.info("Header fixed successfully.")
+        else:
+            logger.info("Recommendation file already contains required headers.")
+
+        logger.info(f"[After Fix] Recommendation columns: {rec_df.columns.tolist()}")
+    except Exception as e:
+        logger.error(f"Failed to auto-correct recommendation file: {str(e)}")
+        raise
+
+    eval_df = evaluate_scheme_recommendations(test_df, rec_df)
+
+    if is_lambda:
+        save_csv_to_s3(eval_df, eval_output_file)
+    else:
+        eval_df.to_csv("Scheme_Evaluation_Metrics.csv", index=False)
+        print("\n===== Evaluation Results =====\n")
+        print(eval_df.to_string(index=False))
+
+    return {"statusCode": 200, "body": "Evaluation completed successfully."}
+
 
 # -------------------- Handlers --------------------
 def recommendation_handler():
