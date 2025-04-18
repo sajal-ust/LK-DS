@@ -340,16 +340,21 @@ def evaluate_scheme_recommendations(test_df, rec_df):
 # -------------------- Handlers --------------------
 def recommendation_handler():
     df = read_csv_from_s3(input_file) if is_lambda else pd.read_csv("Augmented_Stockist_Data.csv")
+
     if active_approach == "user_based":
         rec_df = compute_user_based_recommendations(df)
     elif active_approach == "item_based":
         rec_df = compute_item_based_recommendations(df)
     else:
         raise ValueError("Unknown ACTIVE_APPROACH")
+
     if is_lambda:
-        save_csv_to_s3(rec_df, recommendation_output_file)
+        save_csv_to_s3(rec_df, recommendation_output_file)  # ✅ S3 save with headers
     else:
-        rec_df.to_csv("Final_Recommendations.csv", index=False)
+        rec_df.to_csv("Final_Recommendations.csv", index=False, header=True)  # ✅ Local save with headers
+
+    return {"statusCode": 200, "body": "Recommendations generated successfully."}
+
     return {"statusCode": 200, "body": "Recommendations generated successfully."}
 
 def evaluation_handler():
