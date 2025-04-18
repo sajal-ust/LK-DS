@@ -190,6 +190,210 @@
 
 
 
+# import os
+# import logging
+# import boto3
+# import pandas as pd
+# import numpy as np
+# from io import BytesIO
+# from sklearn.model_selection import train_test_split
+# from sklearn.neighbors import NearestNeighbors
+# from scipy.sparse import csr_matrix
+# from sklearn.preprocessing import MultiLabelBinarizer
+# from sklearn.metrics import jaccard_score
+
+# # -------------------- Logging Setup --------------------
+# logger = logging.getLogger()
+# logger.setLevel(logging.INFO)
+# if not logger.handlers:
+#     handler = logging.StreamHandler()
+#     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
+
+# # -------------------- ENV Setup --------------------
+# is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
+# active_module = os.getenv("ACTIVE_MODULE", "recommendation")  # recommendation or evaluation
+# active_approach = os.getenv("ACTIVE_APPROACH", "user_based")  # user_based or item_based
+# bucket_name = os.getenv("BUCKET_NAME", "lk")
+# input_file = "lk-scheme-recommendations/input_data/Augmented_Stockist_Data.csv"
+# recommendation_output_file = "lk-scheme-recommendations/output_data/Final_Recommendations.csv"
+# test_file_key = "lk-scheme-recommendations/output_data/test_data.csv"
+# eval_output_file = "lk-scheme-recommendations/output_data/Scheme_Evaluation_Metrics.csv"
+
+# s3_client = boto3.client("s3")
+
+# # -------------------- S3 Helpers --------------------
+# def read_csv_from_s3(key):
+#     obj = s3_client.get_object(Bucket=bucket_name, Key=key)
+#     return pd.read_csv(BytesIO(obj["Body"].read()))
+
+# def save_csv_to_s3(df, key):
+#     buffer = BytesIO()
+#     df.to_csv(buffer, index=False)
+#     buffer.seek(0)
+#     s3_client.put_object(Bucket=bucket_name, Key=key, Body=buffer.getvalue())
+
+# # -------------------- User-Based Recommendation --------------------
+# def compute_user_based_recommendations(df):
+#     df["Sales_Value_Last_Period"] = df["Sales_Value_Last_Period"].replace(0, 1)
+#     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
+#     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Partner_id"])
+#     if is_lambda:
+#         save_csv_to_s3(test_df, test_file_key)
+#     else:
+#         test_df.to_csv("test_data.csv", index=False)
+
+#     user_scheme_matrix = train_df.pivot_table(index="Partner_id", columns="Scheme_Type", values="Engagement_Score", aggfunc="mean", fill_value=0)
+#     user_scheme_sparse = csr_matrix(user_scheme_matrix.values)
+#     partner_id_lookup = list(user_scheme_matrix.index)
+
+#     knn_model = NearestNeighbors(metric='cosine', algorithm='brute')
+#     knn_model.fit(user_scheme_sparse)
+
+#     def recommend_user_based(partner_id, top_n=3):
+#         if partner_id not in user_scheme_matrix.index:
+#             return None
+#         idx = partner_id_lookup.index(partner_id)
+#         distances, indices = knn_model.kneighbors(user_scheme_sparse[idx], n_neighbors=min(top_n + 1, len(user_scheme_matrix)))
+#         similarities = 1 - distances.flatten()
+#         neighbors = indices.flatten()
+#         filtered = [(i, sim) for i, sim in zip(neighbors, similarities) if i != idx]
+#         if not filtered:
+#             return None
+#         top_idx, sim_score = filtered[0]
+#         similar_user = partner_id_lookup[top_idx]
+#         sim_score = round(sim_score, 6)
+#         top_schemes = train_df[train_df["Partner_id"] == similar_user]["Scheme_Type"].value_counts().head(3).index.tolist()
+#         while len(top_schemes) < 3:
+#             top_schemes.append("No Scheme")
+#         product = train_df[train_df["Partner_id"] == partner_id]["Product_id"].unique()[0]
+#         return [partner_id, product, sim_score, *top_schemes]
+
+#     user_partners = test_df["Partner_id"].unique()
+#     recommendations = [recommend_user_based(pid) for pid in user_partners if recommend_user_based(pid)]
+#     return pd.DataFrame(recommendations, columns=["Partner_id", "Product_id", "Similarity_Score", "Scheme_1", "Scheme_2", "Scheme_3"])
+
+# # -------------------- Item-Based Recommendation --------------------
+# def compute_item_based_recommendations(df):
+#     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
+#     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+#     if is_lambda:
+#         save_csv_to_s3(test_df, test_file_key)
+#     else:
+#         test_df.to_csv("test_data.csv", index=False)
+#     grouped = train_df.groupby(["Partner_id", "Product_id"])["Scheme_Type"].apply(list).reset_index()
+#     grouped["Entity"] = grouped["Partner_id"] + "_" + grouped["Product_id"]
+#     mlb = MultiLabelBinarizer()
+#     scheme_matrix = pd.DataFrame(
+#         mlb.fit_transform(grouped["Scheme_Type"]),
+#         index=grouped["Entity"],
+#         columns=mlb.classes_
+#     ).T
+#     similarity_matrix = pd.DataFrame(index=scheme_matrix.index, columns=scheme_matrix.index, dtype=float)
+#     for i in range(len(scheme_matrix)):
+#         for j in range(len(scheme_matrix)):
+#             similarity_matrix.iloc[i, j] = jaccard_score(scheme_matrix.iloc[i], scheme_matrix.iloc[j]) if i != j else 1.0
+
+#     test_pairs = test_df[["Partner_id", "Product_id", "Scheme_Type"]].drop_duplicates()
+#     recommendations = []
+#     for _, row in test_pairs.iterrows():
+#         partner, product, current_scheme = row
+#         if current_scheme in similarity_matrix.index:
+#             similar_schemes = similarity_matrix.loc[current_scheme].drop(current_scheme).sort_values(ascending=False).head(3)
+#             sim_list = similar_schemes.index.tolist()
+#             recommendations.append({
+#                 "Partner_id": partner,
+#                 "Product_id": product,
+#                 "Similarity_Score": round(similar_schemes.mean(), 6),
+#                 "Scheme_1": sim_list[0] if len(sim_list) > 0 else "No Scheme",
+#                 "Scheme_2": sim_list[1] if len(sim_list) > 1 else "No Scheme",
+#                 "Scheme_3": sim_list[2] if len(sim_list) > 2 else "No Scheme"
+#             })
+#     return pd.DataFrame(recommendations)
+
+# # -------------------- Evaluation --------------------
+# def evaluate_scheme_recommendations(test_df, rec_df):
+#     test_df = test_df.groupby("Partner_id")["Scheme_Type"].apply(list).reset_index().rename(columns={"Scheme_Type": "Availed_Schemes"})
+#     rec_df["Recommended_Schemes"] = rec_df[["Scheme_1", "Scheme_2", "Scheme_3"]].values.tolist()
+#     merged = pd.merge(test_df, rec_df[["Partner_id", "Recommended_Schemes"]], on="Partner_id", how="left")
+#     merged["Availed_Schemes"] = merged["Availed_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
+#     merged["Recommended_Schemes"] = merged["Recommended_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
+#     results = []
+#     for k in [1, 2, 3]:
+#         precisions, recalls = [], []
+#         for _, row in merged.iterrows():
+#             actual = set(row["Availed_Schemes"])
+#             if not actual:
+#                 continue
+#             predicted = row["Recommended_Schemes"][:k]
+#             tp = len(set(predicted) & actual)
+#             precisions.append(tp / k)
+#             recalls.append(tp / len(actual))
+#         ap = round(sum(precisions) / len(precisions), 4) if precisions else 0
+#         ar = round(sum(recalls) / len(recalls), 4) if recalls else 0
+#         f1 = round(2 * ap * ar / (ap + ar), 4) if ap + ar else 0
+#         results.append({"Top-K": k, "Avg Precision": ap, "Avg Recall": ar, "Avg F1 Score": f1})
+#     return pd.DataFrame(results)
+
+# # -------------------- Handlers --------------------
+# def recommendation_handler():
+#     df = read_csv_from_s3(input_file) if is_lambda else pd.read_csv("Augmented_Stockist_Data.csv")
+
+#     if active_approach == "user_based":
+#         rec_df = compute_user_based_recommendations(df)
+#     elif active_approach == "item_based":
+#         rec_df = compute_item_based_recommendations(df)
+#     else:
+#         raise ValueError("Unknown ACTIVE_APPROACH")
+
+#     if is_lambda:
+#         save_csv_to_s3(rec_df, recommendation_output_file)  # S3 save with headers
+#     else:
+#         rec_df.to_csv("Final_Recommendations.csv", index=False, header=True)  # Local save with headers
+
+#     return {"statusCode": 200, "body": "Recommendations generated successfully."}
+
+#     return {"statusCode": 200, "body": "Recommendations generated successfully."}
+# def evaluation_handler():
+#     test_df = read_csv_from_s3(test_file_key) if is_lambda else pd.read_csv("test_data.csv")
+#     rec_df = read_csv_from_s3(recommendation_output_file) if is_lambda else pd.read_csv("Final_Recommendations.csv")
+
+#     #  Fix for missing or malformed headers in rec_df
+#     try:
+#         expected_cols = {"Partner_id", "Scheme_1", "Scheme_2", "Scheme_3"}
+#         if not expected_cols.issubset(set(rec_df.columns)):
+#             logger.warning("Detected malformed recommendation file. Attempting header fix...")
+#             if is_lambda:
+#                 rec_df = read_csv_from_s3(recommendation_output_file)
+#             else:
+#                 rec_df = pd.read_csv("Final_Recommendations.csv", header=None)
+#             rec_df.columns = ["Partner_id", "Product_id", "Similarity_Score", "Scheme_1", "Scheme_2", "Scheme_3"]
+#             logger.info("Header fixed successfully.")
+#     except Exception as e:
+#         logger.error(f" Failed to auto-correct recommendation file: {str(e)}")
+#         raise
+
+#     eval_df = evaluate_scheme_recommendations(test_df, rec_df)
+
+#     if is_lambda:
+#         save_csv_to_s3(eval_df, eval_output_file)
+#     else:
+#         eval_df.to_csv("Scheme_Evaluation_Metrics.csv", index=False)
+#         print("\n===== Evaluation Results =====\n")
+#         print(eval_df.to_string(index=False))
+
+#     return {"statusCode": 200, "body": "Evaluation completed successfully."}
+
+# # -------------------- Entrypoint --------------------
+# if __name__ == "__main__":
+#     if active_module == "recommendation":
+#         print(recommendation_handler())
+#     elif active_module == "evaluation":
+#         print(evaluation_handler())
+#     else:
+#         logger.error(f"Unknown ACTIVE_MODULE: {active_module}")
+
 import os
 import logging
 import boto3
@@ -348,30 +552,30 @@ def recommendation_handler():
         raise ValueError("Unknown ACTIVE_APPROACH")
 
     if is_lambda:
-        save_csv_to_s3(rec_df, recommendation_output_file)  # S3 save with headers
+        save_csv_to_s3(rec_df, recommendation_output_file)
     else:
-        rec_df.to_csv("Final_Recommendations.csv", index=False, header=True)  # Local save with headers
+        rec_df.to_csv("Final_Recommendations.csv", index=False, header=True)
 
     return {"statusCode": 200, "body": "Recommendations generated successfully."}
 
-    return {"statusCode": 200, "body": "Recommendations generated successfully."}
 def evaluation_handler():
     test_df = read_csv_from_s3(test_file_key) if is_lambda else pd.read_csv("test_data.csv")
     rec_df = read_csv_from_s3(recommendation_output_file) if is_lambda else pd.read_csv("Final_Recommendations.csv")
 
-    #  Fix for missing or malformed headers in rec_df
+    # Fix for missing or malformed headers in rec_df
     try:
         expected_cols = {"Partner_id", "Scheme_1", "Scheme_2", "Scheme_3"}
         if not expected_cols.issubset(set(rec_df.columns)):
             logger.warning("Detected malformed recommendation file. Attempting header fix...")
             if is_lambda:
-                rec_df = read_csv_from_s3(recommendation_output_file)
+                obj = s3_client.get_object(Bucket=bucket_name, Key=recommendation_output_file)
+                rec_df = pd.read_csv(BytesIO(obj["Body"].read()), header=None)
             else:
                 rec_df = pd.read_csv("Final_Recommendations.csv", header=None)
             rec_df.columns = ["Partner_id", "Product_id", "Similarity_Score", "Scheme_1", "Scheme_2", "Scheme_3"]
             logger.info("Header fixed successfully.")
     except Exception as e:
-        logger.error(f" Failed to auto-correct recommendation file: {str(e)}")
+        logger.error(f"Failed to auto-correct recommendation file: {str(e)}")
         raise
 
     eval_df = evaluate_scheme_recommendations(test_df, rec_df)
@@ -393,3 +597,4 @@ if __name__ == "__main__":
         print(evaluation_handler())
     else:
         logger.error(f"Unknown ACTIVE_MODULE: {active_module}")
+
