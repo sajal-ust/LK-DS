@@ -115,7 +115,7 @@ def run_user_based_recommendation(df):
 
 # -------------------- Recommendation Handler --------------------
 def recommendation_handler(event=None, context=None):
-    input_key = "input_data/Augmented_Stockist_data.csv"
+    input_key = "Augmented_Stockist_data.csv"
     output_map = {
         "item_based": "output_data/Item_Based_Scheme_Recommendations.csv",
         "user_based": "output_data/User_Based_Scheme_Recommendations.csv"
