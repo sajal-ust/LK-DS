@@ -168,7 +168,6 @@
 
 #         precision_list.append(precision)
 #         recall_list.append(recall)
-
 #     # Average the metrics across all partners
 #     avg_precision = round(sum(precision_list) / len(precision_list), 4) if precision_list else 0
 #     avg_recall = round(sum(recall_list) / len(recall_list), 4) if recall_list else 0
@@ -349,24 +348,41 @@ def recommendation_handler():
         raise ValueError("Unknown ACTIVE_APPROACH")
 
     if is_lambda:
-        save_csv_to_s3(rec_df, recommendation_output_file)  # ✅ S3 save with headers
+        save_csv_to_s3(rec_df, recommendation_output_file)  # S3 save with headers
     else:
-        rec_df.to_csv("Final_Recommendations.csv", index=False, header=True)  # ✅ Local save with headers
+        rec_df.to_csv("Final_Recommendations.csv", index=False, header=True)  # Local save with headers
 
     return {"statusCode": 200, "body": "Recommendations generated successfully."}
 
     return {"statusCode": 200, "body": "Recommendations generated successfully."}
-
 def evaluation_handler():
     test_df = read_csv_from_s3(test_file_key) if is_lambda else pd.read_csv("test_data.csv")
     rec_df = read_csv_from_s3(recommendation_output_file) if is_lambda else pd.read_csv("Final_Recommendations.csv")
+
+    #  Fix for missing or malformed headers in rec_df
+    try:
+        expected_cols = {"Partner_id", "Scheme_1", "Scheme_2", "Scheme_3"}
+        if not expected_cols.issubset(set(rec_df.columns)):
+            logger.warning("Detected malformed recommendation file. Attempting header fix...")
+            if is_lambda:
+                rec_df = read_csv_from_s3(recommendation_output_file)
+            else:
+                rec_df = pd.read_csv("Final_Recommendations.csv", header=None)
+            rec_df.columns = ["Partner_id", "Product_id", "Similarity_Score", "Scheme_1", "Scheme_2", "Scheme_3"]
+            logger.info("Header fixed successfully.")
+    except Exception as e:
+        logger.error(f" Failed to auto-correct recommendation file: {str(e)}")
+        raise
+
     eval_df = evaluate_scheme_recommendations(test_df, rec_df)
+
     if is_lambda:
         save_csv_to_s3(eval_df, eval_output_file)
     else:
         eval_df.to_csv("Scheme_Evaluation_Metrics.csv", index=False)
         print("\n===== Evaluation Results =====\n")
         print(eval_df.to_string(index=False))
+
     return {"statusCode": 200, "body": "Evaluation completed successfully."}
 
 # -------------------- Entrypoint --------------------
