@@ -75,7 +75,7 @@ def save_evaluation_output(df, output_file):
         buffer.seek(0)
         s3_client.put_object(Bucket=bucket_name, Key=output_file, Body=buffer.getvalue())
     else:
-        save_file_locally(df, output_file)
+        save_file_to_s3(df, bucket_name, output_file)
         print("\n==== Final Evaluation Table ====\n")
         print(df.to_string(index=False))
 
@@ -179,7 +179,7 @@ def recommendation_handler(event=None, context=None):
         if is_lambda:
             save_file_to_s3(result_df, bucket_name, output_key)
         else:
-            save_file_locally(result_df, output_key)
+            save_file_to_s3(result_df, bucket_name, output_key)
         logger.info(f"{active_approach} scheme recommendation completed successfully.")
         return {"statusCode": 200, "body": f"{active_approach} scheme recommendation completed successfully."}
     except Exception as e:
