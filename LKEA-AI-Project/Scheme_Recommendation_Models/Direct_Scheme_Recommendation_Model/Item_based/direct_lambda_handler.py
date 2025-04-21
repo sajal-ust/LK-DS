@@ -112,7 +112,7 @@ def run_item_based_recommendation(df):
             })
     return pd.DataFrame(recommendations)
 
-# ------------------ User-Based Recommendation ------------------
+# ------------------ User-Based Recommendation -------------------
 def run_user_based_recommendation(df):
     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Partner_id"])
