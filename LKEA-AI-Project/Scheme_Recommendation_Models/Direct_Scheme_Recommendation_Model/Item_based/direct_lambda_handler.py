@@ -61,7 +61,7 @@ def save_file_to_s3(df, bucket, key):
 
 def load_file_locally(path):
     logger.info(f"Loading file locally: {path}")
-    return pd.read_csv(path)
+    return pd.read_csv(get_local_path(path))
 
 def save_file_locally(df, path):
     final_path = get_local_path(path)
@@ -195,8 +195,8 @@ def evaluation_handler(event=None, context=None):
             "user_based": "User_Based_Scheme_Recommendations.csv"
         }[active_approach]
         output_file = "Scheme_Evaluation_Metrics.csv"
-        test_df = load_file_from_s3(bucket_name, test_file) if is_lambda else pd.read_csv(test_file)
-        rec_df = load_file_from_s3(bucket_name, rec_file) if is_lambda else pd.read_csv(rec_file)
+        test_df = load_file_from_s3(bucket_name, test_file) if is_lambda else load_file_locally(test_file)
+        rec_df = load_file_from_s3(bucket_name, rec_file) if is_lambda else load_file_locally(rec_file)
         result_df = evaluate_scheme_recommendations(test_df, rec_df)
         save_evaluation_output(result_df, output_file)
         return {"statusCode": 200, "body": "Evaluation completed successfully."}
@@ -211,4 +211,3 @@ if __name__ == "__main__":
         print(evaluation_handler())
     else:
         logger.error(f"Unknown ACTIVE_MODULE: {active_module}")
-
