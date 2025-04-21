@@ -80,7 +80,15 @@ def run_item_based_recommendation(df):
                     "Scheme_3": similar_schemes.index[2] if len(similar_schemes) > 2 else None,
                 })
     recommendation_df = pd.DataFrame(recommendation)
-    recommendation_df = test_df[["Partner_id", "Product_id"]].drop_duplicates().merge(recommendation_df, on="Product_id", how="inner")
+    # recommendation_df = test_df[["Partner_id", "Product_id"]].drop_duplicates().merge(recommendation_df, on="Product_id", how="inner")
+    # Safely merge Partner_id if it exists
+if "Partner_id" in test_df.columns:
+    partner_product_map = test_df[["Partner_id", "Product_id"]].drop_duplicates()
+    recommendation_df = partner_product_map.merge(recommendation_df, on="Product_id", how="inner")
+else:
+    logger.warning("⚠️ 'Partner_id' not found in test_df. Skipping merge.")
+    recommendation_df["Partner_id"] = "UNKNOWN"
+
     return recommendation_df
 
 def run_user_based_recommendation(df):
