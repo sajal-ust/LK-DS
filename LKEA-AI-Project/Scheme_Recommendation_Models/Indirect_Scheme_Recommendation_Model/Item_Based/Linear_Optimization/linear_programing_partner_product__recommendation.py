@@ -71,11 +71,11 @@ def optimize_schemes(product_group):
 optimized_list = (
     optimization_data
     .groupby("Product_id", group_keys=False)
-    .apply(optimize_schemes)
+    .apply(optimize_schemes, include_groups=False)  # 🧘‍♀️ suppresses warning
     .reset_index(drop=True)
 )
 
-# Fix here: convert to DataFrame directly
+# convert to DataFrame directly
 optimized_df = pd.DataFrame(optimized_list.tolist(), columns=["Scheme_1", "Scheme_2", "Scheme_3"])
 
 # Merge with Product ID
