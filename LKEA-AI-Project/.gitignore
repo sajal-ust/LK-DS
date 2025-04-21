@@ -1,0 +1,18 @@
+# Ignore virtual environments
+myenv/
+
+# Ignore log files
+*.log
+
+# Ignore backup and temp files
+*.save
+
+# Ignore CSV files
+*.csv
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+
+# Ignore typo'd requirement file
+requiremets.txt
