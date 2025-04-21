@@ -7,87 +7,84 @@ Original file is located at
     https://colab.research.google.com/drive/1xMsmycK9ewQjKe5w3QIJni3Z0ckJmYZ6
 """
 
-import pandas as pd# Used for working with data in table format (like Excel)
-from scipy.optimize import linprog# Used to solve optimization problems
-import numpy as np# Used for working with numbers and arrays
+import pandas as pd
+import numpy as np
+from scipy.optimize import linprog
 
-# Load dataset
-# Reads the CSV file and stores the data in a table called 'df'
+# ------------------ Step 1: Load Data ------------------
 df = pd.read_csv("stockist_data.csv")
 
-# Define metadata columns
-metadata_cols = ['Partner_id', 'Geography', 'Stockist_Type', 'Scheme_Type', 'Sales_Value_Last_Period',
-                 'Sales_Quantity_Last_Period', 'MRP', 'Growth_Percentage', 'Discount_Applied',
-                 'Bulk_Purchase_Tendency', 'New_Stockist', 'Feedback_Score']
+# ------------------ Step 2: Melt Products ------------------
+metadata_cols = [
+    'Partner_id', 'Geography', 'Stockist_Type', 'Scheme_Type', 'Sales_Value_Last_Period',
+    'Sales_Quantity_Last_Period', 'MRP', 'Growth_Percentage', 'Discount_Applied',
+    'Bulk_Purchase_Tendency', 'New_Stockist', 'Feedback_Score'
+]
 
-# Identify product columns (excluding metadata)
 product_cols = [col for col in df.columns if col not in metadata_cols]
 
-# Transform data to have 'Product_id' column
-# Reshape the data so each row represents a single product for a stockist (partner)
-# 'metadata_cols' are columns we want to keep as they are (like Partner ID, etc.)
-# 'product_cols' are the product columns that we want to convert into rows
-df_melted = df.melt(id_vars=metadata_cols, value_vars=product_cols,
-                     var_name='Product_id', value_name='Has_Product')
-# Keep only the rows where the partner actually has the product (Has_Product == 1)
-# Drop the 'Has_Product' column since we don't need it anymore
-df_melted = df_melted[df_melted['Has_Product'] == 1].drop(columns=['Has_Product']) # Aggregate sales volume per Partner-Product-Scheme combination
-# Group the data by Partner ID, Product ID, and Scheme Type
-# Then, for each group, sum up the sales value and quantity from the last period
-product_schemes = df_melted.groupby(["Partner_id", "Product_id", "Scheme_Type"]).agg({
+df_melted = df.melt(
+    id_vars=metadata_cols,
+    value_vars=product_cols,
+    var_name='Product_id',
+    value_name='Has_Product'
+)
+
+df_melted = df_melted[df_melted['Has_Product'] == 1].drop(columns=['Has_Product'])
+
+# ------------------ Step 3: Aggregate Sales ------------------
+product_schemes = df_melted.groupby(
+    ["Partner_id", "Product_id", "Scheme_Type"]
+).agg({
     "Sales_Value_Last_Period": "sum",
     "Sales_Quantity_Last_Period": "sum"
-    # Reset the index to turn the groupby result back into a regular DataFrame
 }).reset_index()
 
-# Prepare data for optimization
 optimization_data = product_schemes[["Product_id", "Scheme_Type", "Sales_Value_Last_Period"]]
 
-# Function to perform Linear Programming (LP) optimization for selecting the best schemes for each product
+# ------------------ Step 4: LP Optimization ------------------
 def optimize_schemes(product_group):
-    # Get the list of unique schemes available for the product
     schemes = product_group["Scheme_Type"].unique()
-    num_schemes = len(schemes)# Count how many unique schemes there are
+    num_schemes = len(schemes)
 
-    # If there are no schemes, return three empty (None) values
     if num_schemes == 0:
-        return [None, None, None]  # Ensure blank entries
+        return [None, None, None]
 
-    # If there are 3 or fewer schemes, return them directly
-    # Fill the rest with None to ensure we always return 3 values
     if num_schemes <= 3:
         return list(schemes) + [None] * (3 - num_schemes)
 
-    # If there are more than 3 schemes, apply optimization logic to select the best ones
-    # Objective: Maximize sales value (we use negative because linprog minimizes by default)
-    c = -product_group.groupby("Scheme_Type")["Sales_Value_Last_Period"].sum().values
-    # Bounds: Each scheme can either be selected (1) or not (0), or partially in between
-    bounds = [(0, 1) for _ in range(num_schemes)]
-    # Run the linear programming optimization
-    res = linprog(c, bounds=bounds, method='highs', options={"disp": False})
-    # (Currently) return blank values as the final optimized schemes are not yet extracted
-    return [None, None, None]
+    scheme_sales = product_group.groupby("Scheme_Type")["Sales_Value_Last_Period"].sum()
+    c = -scheme_sales.values
+    bounds = [(0, 1)] * num_schemes
 
-# Apply optimization
-# Apply the optimization function to each product to get the best 3 schemes
-# This runs the 'optimize_schemes' function for each unique 'Product_id'
-optimized_schemes = (
+    res = linprog(c, bounds=bounds, method='highs', options={"disp": False})
+
+    if res.success:
+        x = res.x
+        top_indices = np.argsort(x)[::-1][:3]
+        top_schemes = [scheme_sales.index[i] for i in top_indices]
+        return top_schemes + [None] * (3 - len(top_schemes))
+    else:
+        return [None, None, None]
+
+# ------------------ Step 5: Apply Optimization ------------------
+optimized_list = (
     optimization_data
     .groupby("Product_id", group_keys=False)
     .apply(optimize_schemes)
     .reset_index(drop=True)
 )
 
-# Split the list of 3 schemes (returned by the function) into separate columns: Scheme_1, Scheme_2, Scheme_3
-optimized_schemes[["Scheme_1", "Scheme_2", "Scheme_3"]] = pd.DataFrame(optimized_schemes[0].to_list(), index=optimized_schemes.index)
+# Fix here: convert to DataFrame directly
+optimized_df = pd.DataFrame(optimized_list.tolist(), columns=["Scheme_1", "Scheme_2", "Scheme_3"])
 
-# Drop the original column that contained the list of schemes (now that we've split it into 3 separate columns)
-optimized_schemes = optimized_schemes.drop(columns=[0])
+# Merge with Product ID
+product_ids = optimization_data["Product_id"].drop_duplicates().reset_index(drop=True)
+optimized_schemes = pd.concat([product_ids, optimized_df], axis=1)
 
-# Group Partner_ids per product
+# ------------------ Step 6: Final Merge ------------------
 partners_per_product = df_melted.groupby("Product_id")["Partner_id"].apply(list).reset_index()
 
-# Merge with optimized schemes
 final_optimized_output = partners_per_product.merge(optimized_schemes, on="Product_id", how="left")
 final_optimized_output.to_csv("Top_Optimized_Schemes_with_LP.csv", index=False)
-
+print("Saved: Top_Optimized_Schemes_with_LP.csv")
