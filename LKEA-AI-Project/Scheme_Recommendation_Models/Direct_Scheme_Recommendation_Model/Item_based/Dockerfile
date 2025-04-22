@@ -1,11 +1,12 @@
-FROM public.ecr.aws/lambda/python:3.9
+FROM public.ecr.aws/lambda/python:3.8
 
-WORKDIR /app
+# must be in root
+COPY direct_lambda_handlers.py .
 
-COPY . .
+# (optional) if you have dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Set correct Lambda handler: filename.function
-CMD ["direct_lambda_handler.main_handler"]
+# Lambda handler
+CMD ["direct_lambda_handlers.main_handler"]
 

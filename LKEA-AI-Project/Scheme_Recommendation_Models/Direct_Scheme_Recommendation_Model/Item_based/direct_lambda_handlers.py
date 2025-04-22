@@ -31,7 +31,7 @@ active_approach = os.getenv("ACTIVE_APPROACH", "user_based")
 is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
 bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
 bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
-input_key =os.getenv( "Augmented_Stockist_Dat.csv")
+input_key = os.getenv("INPUT_KEY", "Augmented_Stockist_Dat.csv")
 logger.info(f"[ENV] IS_LAMBDA={is_lambda}, ACTIVE_APPROACH={active_approach}, BUCKET_NAME={bucket_name}, INPUT_KEY={input_key}")
 
 # ------------------ I/O Helpers ------------------
@@ -176,14 +176,16 @@ def evaluate_scheme_recommendations(test_df, rec_df):
 
 # ------------------ Main Trigger ------------------
 def main_handler(event=None, context=None):
-     output_map = {
+    output_map = {
         "item_based": "Item_Based_Scheme_Recommendations.csv",
         "user_based": "User_Based_Scheme_Recommendations.csv"
     }
+
     try:
         # Step 1: Load Data
         df = load_file_from_s3(bucket_name, input_key) if is_lambda else load_file_locally(input_key)
 
+        # Step 2: Run Recommendation
         if active_approach == "item_based":
             result_df = run_item_based_recommendation(df)
         elif active_approach == "user_based":
@@ -191,45 +193,35 @@ def main_handler(event=None, context=None):
         else:
             raise ValueError("ACTIVE_APPROACH must be 'item_based' or 'user_based'")
 
+        # Step 3: Save Recommendation Output
         output_key = output_map[active_approach]
         save_file_to_s3(result_df, bucket_name, output_key)
 
+        # Step 4: Load Evaluation Test Data
         test_file = "test_data.csv"
         test_df = load_file_from_s3(bucket_name, test_file) if is_lambda else load_file_locally(test_file)
+
+        # Step 5: Evaluate
         result_eval_df = evaluate_scheme_recommendations(test_df, result_df)
         save_evaluation_output(result_eval_df, "Scheme_Evaluation_Metrics.csv")
 
+        # Step 6: Success response
         logger.info(f"{active_approach} recommendation and evaluation completed successfully.")
         return {
             "statusCode": 200,
             "body": f"{active_approach} recommendation and evaluation completed successfully."
-
-        # Step 2: Run Recommendation
-        if active_approach == "item_based":
-            result_df = run_item_based_recommendation(df)
-        else:
-            result_df = run_user_based_recommendation(df)
-
-        # Step 3: Save Recommendation Output
-        output_key = output_map[active_approach]
-        save_file_to_s3(result_df, bucket_name, output_key)  # Save to S3 in both cases
-
-        # Step 4: Run Evaluation
-        test_file = "test_data.csv"
-        test_df = load_file_from_s3(bucket_name, test_file) if is_lambda else load_file_locally(test_file)
-        rec_df = result_df  # Directly use current recommendation result
-        result_eval_df = evaluate_scheme_recommendations(test_df, rec_df)
-        save_evaluation_output(result_eval_df, "Scheme_Evaluation_Metrics.csv")
-
-        logger.info(f"{active_approach} scheme recommendation + evaluation completed successfully.")
-        return {
-            "statusCode": 200,
-            "body": f"{active_approach} scheme recommendation + evaluation completed successfully."
         }
 
     except Exception as e:
         logger.error(f"Error in Lambda execution: {str(e)}")
-        return {"statusCode": 500, "body": str(e)}
+        return {
+            "statusCode": 500,
+            "body": str(e)
+        }
+
+
+        
+          
 
 #-----------------------------------------
 if __name__ == "__main__":
