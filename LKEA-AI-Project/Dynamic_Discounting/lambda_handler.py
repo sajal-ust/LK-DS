@@ -11,6 +11,7 @@ logger.setLevel(logging.INFO)
 
 # Determine if running in Lambda environment
 is_lambda = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
+bucket_name = os.environ.get('BUCKET_NAME', 'lk-dynamic-discount')
 
 # Add handlers if they don't exist
 if not logger.handlers:
@@ -214,8 +215,8 @@ def lambda_handler(event, context):
         logger.info(f"Updated Lambda mode: {is_lambda}, BASE_DIR: {BASE_DIR}")
     
     # Input and output S3 bucket details
-    input_bucket = "lk-dynamic-discount-1"
-    output_bucket = "lk-dynamic-discount-1"
+    input_bucket = bucket_name
+    output_bucket = bucket_name
     base_filename = event.get("model_run_date", "my_product_forecasts2025")
 
     # Set file paths based on execution environment
