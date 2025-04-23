@@ -12,7 +12,7 @@ from scipy.optimize import linprog
 import numpy as np
 
 # Load dataset
-df = pd.read_csv("Stockist_data.csv")
+df = pd.read_csv("stockist_data.csv")
 
 # Define metadata columns
 metadata_cols = ['Partner_id', 'Geography', 'Stockist_Type', 'Scheme_Type', 'Sales_Value_Last_Period',
@@ -52,7 +52,10 @@ def optimize_schemes(product_group):
     return [None, None, None]
 
 # Apply optimization
-optimized_schemes = optimization_data.groupby("Product_id").apply(optimize_schemes).reset_index()
+optimized_schemes = optimization_data.groupby("Product_id", group_keys=False).apply(
+    optimize_schemes, include_groups=False
+).reset_index()
+
 optimized_schemes[["Scheme_1", "Scheme_2", "Scheme_3"]] = pd.DataFrame(optimized_schemes[0].tolist(), index=optimized_schemes.index)
 optimized_schemes = optimized_schemes.drop(columns=[0])
 

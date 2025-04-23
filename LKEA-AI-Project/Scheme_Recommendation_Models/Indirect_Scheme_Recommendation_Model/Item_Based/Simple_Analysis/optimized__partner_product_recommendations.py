@@ -12,7 +12,7 @@ from collections import Counter# For counting the frequency of items in a list o
 import ast# For safely converting strings that look like Python data structures (like lists or dicts) back into actual Python objects
 
 # Load dataset
-file_path = "generated_stockist_data.csv"
+file_path = "stockist_data.csv"
 df = pd.read_csv(file_path)
 
 # Define relevant product columns
@@ -81,6 +81,7 @@ final_df = pd.DataFrame(product_scheme_data)
 # Save intermediate results
 final_scheme_mapping_path = "Optimized_Product_Partner_Scheme_Mapping.csv"
 final_df.to_csv(final_scheme_mapping_path, index=False)
+
 
 
 
