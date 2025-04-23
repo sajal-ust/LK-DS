@@ -30,10 +30,10 @@ if not logger.handlers:
 active_approach = os.getenv("ACTIVE_APPROACH", "user_based")
 is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
 bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
-bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
 input_key = os.getenv("INPUT_KEY", "Augmented_Stockist_Dat.csv")
 output_key = os.getenv("OUTPUT_KEY", "test_data.csv")
 evaluation_output_key = os.getenv("EVALUATION_OUTPUT_KEY", "Scheme_Evaluation_Metrics.csv")
+test_data_key = os.getenv("TEST_DATA_KEY", "test_data.csv")
 
 logger.info(f"[ENV] IS_LAMBDA={is_lambda}, ACTIVE_APPROACH={active_approach}, BUCKET_NAME={bucket_name}, INPUT_KEY={input_key}")
 
@@ -75,7 +75,7 @@ def save_evaluation_output(df, output_file):
 def run_item_based_recommendation(df):
     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
-    save_file_to_s3(test_df, bucket_name, output_key)
+    save_file_to_s3(test_df, bucket_name, test_data_key)
     partner_product_schemes = train_df.groupby(["Partner_id", "Product_id"])["Scheme_Type"].apply(list).reset_index()
     partner_product_schemes["Entity"] = partner_product_schemes["Partner_id"] + "_" + partner_product_schemes["Product_id"]
     mlb = MultiLabelBinarizer()
@@ -111,7 +111,7 @@ def run_item_based_recommendation(df):
 def run_user_based_recommendation(df):
     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Partner_id"])
-    save_file_to_s3(test_df, bucket_name, output_key)
+    save_file_to_s3(test_df, bucket_name, test_data_key)
     matrix = train_df.pivot_table(index="Partner_id", columns="Scheme_Type", values="Engagement_Score", aggfunc="mean", fill_value=0)
     user_scheme_sparse = csr_matrix(matrix.values)
     partner_ids = list(matrix.index)
@@ -202,7 +202,7 @@ def main_handler(event=None, context=None):
         save_file_to_s3(result_df, bucket_name, recommendation_output_key)
 
         # Step 4: Load Evaluation Test Data
-        test_df = load_file_from_s3(bucket_name, output_key) if is_lambda else load_file_locally(output_key)
+        test_df = load_file_from_s3(bucket_name, test_data_key) if is_lambda else load_file_locally(test_data_key)
 
         # Step 5: Evaluate 
         result_eval_df = evaluate_scheme_recommendations(test_df, result_df)
