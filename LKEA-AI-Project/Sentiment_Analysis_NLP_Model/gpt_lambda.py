@@ -166,14 +166,14 @@ def get_gpt_batch_sentiment_with_score(texts, batch_size=50, timeout=20):
         # Return default "Negative" with a score of 0 for each input in the batch
         return ["Negative"] * len(texts), [0.0] * len(texts)
 #
-def save_results_to_csv_wrapper(merged_df, base_filename, bucket_name=None):
+def save_results_to_csv_wrapper(merged_df, output_s3_key, bucket_name=None):
     """
     Save results to local or S3 based on execution environment.
     """
     output_dir = '/tmp' if is_lambda else './output_folder'
     os.makedirs(output_dir, exist_ok=True)
 
-    metrics_filename = f"{base_filename}_output.csv"
+    metrics_filename = "gpt_output.csv"
 
 
     metrics_path = os.path.join(output_dir, metrics_filename)
@@ -183,7 +183,7 @@ def save_results_to_csv_wrapper(merged_df, base_filename, bucket_name=None):
         if is_lambda:
             logger.info("Lambda environment detected — uploading to S3.")
             if bucket_name:
-                save_file_to_s3(merged_df, bucket_name, f"results/{metrics_filename}")
+                save_file_to_s3(merged_df, bucket_name, f"{output_s3_key}")
 
         else:
             logger.info(f"Saving results locally to: {metrics_path}")
@@ -192,7 +192,7 @@ def save_results_to_csv_wrapper(merged_df, base_filename, bucket_name=None):
 
             if bucket_name:
                 logger.info("Also uploading local results to S3.")
-                save_file_to_s3(merged_df, bucket_name, f"results/{metrics_filename}")
+                save_file_to_s3(merged_df, bucket_name, f"{output_s3_key}")
 
     except Exception as e:
         logger.error(f"Error in saving results: {e}")
@@ -238,17 +238,15 @@ def lambda_handler(event, context):
     print("\nGPT Model Performance:")
     report = classification_report(df["Sentiment"], df["gpt_prediction"])
     print(report)
-    df
-    df = df.iloc[:1000].reset_index(drop=True)
-    stockist_df = stockist_df.iloc[:1000].reset_index(drop=True)
-    merged_df = pd.concat([stockist_df, df], axis=1)
+    merged_df = pd.merge(stockist_df, df, on='Partner_id', how='left')
     # Save results
     output_file_path = 'gpt_output.csv'
    # df.to_csv(output_file_path,index='false')
 
     # Upload to S3
-    output_s3_key = 'results/gpt_output.csv'
-    save_results_to_csv_wrapper(merged_df, base_filename='gpt_model',bucket_name=bucket_name)
+    #output_s3_key = 'results/gpt_output.csv'
+    output_s3_key=os.getenv("OUPUT_S3_KEY","results/gpt_model_output.csv")
+    save_results_to_csv_wrapper(merged_df,output_s3_key,bucket_name=bucket_name)
     return {
         'statusCode': 200,
         'body': {
