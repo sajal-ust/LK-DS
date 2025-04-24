@@ -26,17 +26,6 @@ if not logger.handlers:
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-# ------------------ ENV Config ------------------
-active_approach = os.getenv("ACTIVE_APPROACH", "user_based")
-is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
-bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
-input_key = os.getenv("INPUT_KEY", "Augmented_Stockist_Dat.csv")
-output_key = os.getenv("OUTPUT_KEY", "test_data.csv")
-evaluation_output_key = os.getenv("EVALUATION_OUTPUT_KEY", "Scheme_Evaluation_Metrics.csv")
-test_data_key = os.getenv("TEST_DATA_KEY", "test_data.csv")
-
-logger.info(f"[ENV] IS_LAMBDA={is_lambda}, ACTIVE_APPROACH={active_approach}, BUCKET_NAME={bucket_name}, INPUT_KEY={input_key}")
-
 # ------------------ I/O Helpers ------------------
 s3_client = boto3.client("s3")
 
@@ -180,6 +169,20 @@ def evaluate_scheme_recommendations(test_df, rec_df):
 
 # ------------------ Main Trigger ------------------
 def main_handler(event=None, context=None):
+    for k, v in event.items():
+        os.environ[k] = str(v)
+
+    # ------------------ ENV Config ------------------
+    active_approach = os.getenv("ACTIVE_APPROACH", "user_based")
+    is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
+    bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
+    input_key = os.getenv("INPUT_KEY", "Augmented_Stockist_Dat.csv")
+    output_key = os.getenv("OUTPUT_KEY", "test_data.csv")
+    evaluation_output_key = os.getenv("EVALUATION_OUTPUT_KEY", "Scheme_Evaluation_Metrics.csv")
+    test_data_key = os.getenv("TEST_DATA_KEY", "test_data.csv")
+    
+    logger.info(f"[ENV] IS_LAMBDA={is_lambda}, ACTIVE_APPROACH={active_approach}, BUCKET_NAME={bucket_name}, INPUT_KEY={input_key}")
+
     output_map = {
         "item_based": "Item_Based_Scheme_Recommendations.csv",
         "user_based": "User_Based_Scheme_Recommendations.csv"
