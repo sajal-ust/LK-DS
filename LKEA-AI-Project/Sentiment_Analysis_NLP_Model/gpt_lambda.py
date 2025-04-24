@@ -157,7 +157,7 @@ def get_gpt_batch_sentiment_with_score(texts, batch_size=50, timeout=20):
         # Return default "Negative" with a score of 0 for each input in the batch
         return ["Negative"] * len(texts), [0.0] * len(texts)
 #
-def save_results_to_csv_wrapper(merged_df, output_s3_key, bucket_name=None, is_lambda):
+def save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name=None):
     """
     Save results to local or S3 based on execution environment.
     """
@@ -244,7 +244,7 @@ def lambda_handler(event, context):
     report_df = pd.DataFrame(report).transpose()
     logger.info(report_df)
 
-    save_results_to_csv_wrapper(report_df,evaluation_output_key,bucket_name=bucket_name, is_lambda)
+    save_results_to_csv_wrapper(report_df,evaluation_output_key,is_lambda,bucket_name=bucket_name)
     merged_df = pd.merge(stockist_df, df, on='Partner_id', how='left')
     # Save results
     # output_file_path = 'gpt_output.csv'
@@ -253,7 +253,7 @@ def lambda_handler(event, context):
     # Upload to S3
     #output_s3_key = 'results/gpt_output.csv'
     
-    save_results_to_csv_wrapper(merged_df,output_s3_key,bucket_name=bucket_name, is_lambda)
+    save_results_to_csv_wrapper(merged_df,output_s3_key,is_lambda,bucket_name=bucket_name)
     return {
         'statusCode': 200,
         'body': {
