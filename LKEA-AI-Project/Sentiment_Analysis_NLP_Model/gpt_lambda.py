@@ -164,7 +164,7 @@ def save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name
     output_dir = '/tmp' if is_lambda else './output_folder'
     os.makedirs(output_dir, exist_ok=True)
 
-    save_file_to_s3(merged_df, bucket_name, output_s3_key)
+    # save_file_to_s3(merged_df, bucket_name, output_s3_key)
 
     try:
         if is_lambda:
