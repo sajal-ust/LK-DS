@@ -50,7 +50,7 @@ def save_file_locally(df, path):
     logger.info(f"Saving result locally to resolved path: {final_path}")
     df.to_csv(final_path, index=False)
 
-def save_evaluation_output(df, output_file):
+def save_evaluation_output(df, output_file, bucket_name):
     buffer = BytesIO()
     df.to_csv(buffer, index=False)
     buffer.seek(0)
@@ -61,7 +61,7 @@ def save_evaluation_output(df, output_file):
 
 
 # ------------------ Item-Based Recommendation ------------------
-def run_item_based_recommendation(df):
+def run_item_based_recommendation(df, bucket_name):
     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
     save_file_to_s3(test_df, bucket_name, test_data_key)
@@ -97,7 +97,7 @@ def run_item_based_recommendation(df):
     return pd.DataFrame(recommendations)
 
 # ------------------ User-Based Recommendation -------------------
-def run_user_based_recommendation(df):
+def run_user_based_recommendation(df, bucket_name):
     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Partner_id"])
     save_file_to_s3(test_df, bucket_name, test_data_key)
@@ -194,9 +194,9 @@ def main_handler(event=None, context=None):
 
         # Step 2: Run Recommendation
         if active_approach == "item_based":
-            result_df = run_item_based_recommendation(df)
+            result_df = run_item_based_recommendation(df, bucket_name)
         elif active_approach == "user_based":
-            result_df = run_user_based_recommendation(df)
+            result_df = run_user_based_recommendation(df, bucket_name)
         else:
             raise ValueError("ACTIVE_APPROACH must be 'item_based' or 'user_based'")
 
@@ -209,7 +209,7 @@ def main_handler(event=None, context=None):
 
         # Step 5: Evaluate 
         result_eval_df = evaluate_scheme_recommendations(test_df, result_df)
-        save_evaluation_output(result_eval_df, evaluation_output_key)
+        save_evaluation_output(result_eval_df, evaluation_output_key, bucket_name)
 
 
 
