@@ -61,7 +61,7 @@ def save_evaluation_output(df, output_file, bucket_name):
 
 
 # ------------------ Item-Based Recommendation ------------------
-def run_item_based_recommendation(df, bucket_name):
+def run_item_based_recommendation(df, bucket_name, test_data_key):
     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
     save_file_to_s3(test_df, bucket_name, test_data_key)
@@ -97,7 +97,7 @@ def run_item_based_recommendation(df, bucket_name):
     return pd.DataFrame(recommendations)
 
 # ------------------ User-Based Recommendation -------------------
-def run_user_based_recommendation(df, bucket_name):
+def run_user_based_recommendation(df, bucket_name, test_data_key):
     df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Partner_id"])
     save_file_to_s3(test_df, bucket_name, test_data_key)
@@ -177,16 +177,16 @@ def main_handler(event=None, context=None):
     is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
     bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
     input_key = os.getenv("INPUT_KEY", "Augmented_Stockist_Dat.csv")
-    output_key = os.getenv("OUTPUT_KEY", "test_data.csv")
+    recommendation_output_key = os.getenv("OUTPUT_KEY", "test_data.csv")
     evaluation_output_key = os.getenv("EVALUATION_OUTPUT_KEY", "Scheme_Evaluation_Metrics.csv")
     test_data_key = os.getenv("TEST_DATA_KEY", "test_data.csv")
     
     logger.info(f"[ENV] IS_LAMBDA={is_lambda}, ACTIVE_APPROACH={active_approach}, BUCKET_NAME={bucket_name}, INPUT_KEY={input_key}")
 
-    output_map = {
-        "item_based": "Item_Based_Scheme_Recommendations.csv",
-        "user_based": "User_Based_Scheme_Recommendations.csv"
-    }
+    # output_map = {
+    #     "item_based": "Item_Based_Scheme_Recommendations.csv",
+    #     "user_based": "User_Based_Scheme_Recommendations.csv"
+    # }
 
     try:
         # Step 1: Load Data
@@ -194,14 +194,14 @@ def main_handler(event=None, context=None):
 
         # Step 2: Run Recommendation
         if active_approach == "item_based":
-            result_df = run_item_based_recommendation(df, bucket_name)
+            result_df = run_item_based_recommendation(df, bucket_name, test_data_key)
         elif active_approach == "user_based":
-            result_df = run_user_based_recommendation(df, bucket_name)
+            result_df = run_user_based_recommendation(df, bucket_name, test_data_key)
         else:
             raise ValueError("ACTIVE_APPROACH must be 'item_based' or 'user_based'")
 
         # Step 3: Save Recommendation Output
-        recommendation_output_key = output_map[active_approach]
+        # recommendation_output_key = output_map[active_approach]
         save_file_to_s3(result_df, bucket_name, recommendation_output_key)
 
         # Step 4: Load Evaluation Test Data
