@@ -21,7 +21,6 @@ if not logger.handlers:
     # Add file handler
     file_handler = logging.FileHandler('/tmp/app.log')
     file_handler.setLevel(logging.INFO)
-   # file_handler.setFormatter(formatter)bucket_name = os.getenv("BUCKET_NAME_SENTIMENT","roberta-data-text")
     logger.addHandler(file_handler)
 
     # Add console handler
@@ -29,6 +28,10 @@ if not logger.handlers:
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
+
+# Flag to distinguish between Lambda and local execution
+is_lambda = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
+logger.info(f"Running in Lambda mode: {is_lambda}")
 
 BASE_DIR = '/tmp' if is_lambda else '.'
 # Ensure directories exist
@@ -46,9 +49,7 @@ except ImportError as e:
 # Initialize S3 client
 s3_client = boto3.client('s3')
 
-# Flag to distinguish between Lambda and local execution
-is_lambda = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
-logger.info(f"Running in Lambda mode: {is_lambda}")
+
 
 def load_file_from_s3(bucket_name, file_key):
     """Load file from S3 and return as a DataFrame"""
@@ -156,7 +157,7 @@ def get_gpt_batch_sentiment_with_score(texts, batch_size=50, timeout=20):
         # Return default "Negative" with a score of 0 for each input in the batch
         return ["Negative"] * len(texts), [0.0] * len(texts)
 #
-def save_results_to_csv_wrapper(merged_df, output_s3_key, bucket_name=None):
+def save_results_to_csv_wrapper(merged_df, output_s3_key, bucket_name=None, is_lambda):
     """
     Save results to local or S3 based on execution environment.
     """
@@ -243,7 +244,7 @@ def lambda_handler(event, context):
     report_df = pd.DataFrame(report).transpose()
     logger.info(report_df)
 
-    save_results_to_csv_wrapper(merged_df,evaluation_output_key,bucket_name=bucket_name)
+    save_results_to_csv_wrapper(report_df,evaluation_output_key,bucket_name=bucket_name, is_lambda)
     merged_df = pd.merge(stockist_df, df, on='Partner_id', how='left')
     # Save results
     # output_file_path = 'gpt_output.csv'
@@ -252,7 +253,7 @@ def lambda_handler(event, context):
     # Upload to S3
     #output_s3_key = 'results/gpt_output.csv'
     
-    save_results_to_csv_wrapper(merged_df,output_s3_key,bucket_name=bucket_name)
+    save_results_to_csv_wrapper(merged_df,output_s3_key,bucket_name=bucket_name, is_lambda)
     return {
         'statusCode': 200,
         'body': {
