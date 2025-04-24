@@ -173,9 +173,9 @@ def save_results_to_csv_wrapper(merged_df, output_s3_key, bucket_name=None):
     output_dir = '/tmp' if is_lambda else './output_folder'
     os.makedirs(output_dir, exist_ok=True)
 
-    metrics_filename = "gpt_output.csv"
-
-
+    metrics_filename = f"{output_s3_key}_output.csv"
+    save_file_to_s3(merged_df, bucket_name, f"results/{metrics_filename}")
+    
     metrics_path = os.path.join(output_dir, metrics_filename)
 
 
@@ -203,10 +203,10 @@ def lambda_handler(event, context):
     # Initialize S3 client
     s3 = boto3.client('s3')
     bucket_name = os.getenv("BUCKET_NAME_SENTIMENT", "roberta-data-text")
-    file_key=os.getenv("INPUT_KEY_SENTIMENT", "channel_partner_feedback.csv")
-    file_key_2 =os.getenv("INPUT_KEY_STOCKIST","augmented_stockist_data_with_sentiment_cleaned.csv")
+    file_key=os.getenv("INPUT_KEY_SENTIMENT", "new_channel_partner_feedback.csv")
+    file_key_2 =os.getenv("INPUT_KEY_STOCKIST","Augmented_Stockist_Data_Final.csv")
     # Download file from S3
-    local_file_path = 'channel_partner_feedback.csv'
+    local_file_path = 'new_channel_partner_feedback.csv'
     #load_file_from_s3(bucket_name, local_file_path)
 
     # Load data
@@ -236,8 +236,11 @@ def lambda_handler(event, context):
 
     # Evaluate
     print("\nGPT Model Performance:")
-    report = classification_report(df["Sentiment"], df["gpt_prediction"])
-    print(report)
+    report = classification_report(df["Sentiment"], df["roberta_model_prediction"], output_dict=True)
+    report_df = pd.DataFrame(report).transpose()
+    print(report_df)
+    evaluation_path="Evaluation_Matrics"
+    save_results_to_csv_wrapper(merged_df,evaluation_path,bucket_name=bucket_name)
     merged_df = pd.merge(stockist_df, df, on='Partner_id', how='left')
     # Save results
     output_file_path = 'gpt_output.csv'
