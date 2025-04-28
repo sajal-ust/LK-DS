@@ -23,18 +23,6 @@ if not logger.handlers:
 
 # ------------------- S3 Client Setup -------------------
 s3_client = boto3.client('s3')
-logger.info("AWS client created successfully.")
-
-bucket_name = "lk-scheme-recommendations"
-file_key = "stockist_data.csv"
-
-try:
-    logger.info("Starting to load file from S3...")
-    obj = s3_client.get_object(Bucket=bucket_name, Key=file_key)
-    df = pd.read_csv(obj['Body'])  # Reading CSV from the object body
-    logger.info(f"S3 Data loaded successfully with shape {df.shape}.")
-except Exception as e:
-    logger.error(f"Failed to load file from S3: {str(e)}")
 
 # ------------------- Helpers -------------------
 def save_file(df, output_key, is_lambda, bucket_name):
@@ -59,33 +47,10 @@ def load_file(input_key, is_lambda, bucket_name):
 
 # ------------------- Main Lambda Handler -------------------
 def lambda_handler(event=None, context=None):
-    
     # -------------------- ENV Config --------------------
     active_approach = os.getenv("ACTIVE_APPROACH", "item_based")
+    include_purchased = os.getenv("INCLUDE_PURCHASED", "true").lower() == "true"
     is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
-    analysis_mode = os.getenv("ANALYSIS_MODE", "simple")
-    bucket_name = os.getenv("BUCKET_NAME")
-    input_key = os.getenv("INPUT_KEY")
-
-    if not bucket_name or not input_key:
-        logger.error("Environment variables BUCKET_NAME or INPUT_KEY are missing!")
-        raise ValueError("Missing BUCKET_NAME or INPUT_KEY environment variables.")
-
-# -------------------- Load Data --------------------
-    try:
-        logger.info("Starting to load file from S3...")
-        bucket_name = "lk-scheme-recommendations"
-        file_key = "stockist_data.csv"
-        obj = s3_client.get_object(Bucket=bucket_name, Key=file_key)
-        df = pd.read_csv(obj['Body'])  # load into dataframe
-        logger.info(f"S3 Data loaded successfully with shape {df.shape}.")
-    except Exception as e:
-        logger.error(f"Failed to load file '{file_key}' from bucket '{bucket_name}': {str(e)}")
-        raise e  # Stop execution if file not loaded
-
-    # -------------------- Recommendation --------------------
-    include_purchased = True  # or False depending on requirement
-    rec_df, test_df = run_item_based_recommendation(df, include_purchased)
     analysis_mode = os.getenv("ANALYSIS_MODE", "simple")
 
     bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
