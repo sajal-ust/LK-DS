@@ -77,19 +77,19 @@ def run_item_based(df, test_data_key, recommendation_key, is_lambda, bucket_name
             similarity_scores.append([])
             continue
 
-        recs, scores = set(), []
+        candidate_scores = {}
 
         for prod in purchased:
             top3 = get_top3_products(prod)
-            recs.update(top3)
-            scores.extend(product_similarity_df.loc[prod, top3].values)
+            for similar_prod in top3:
+                if not include_purchased and similar_prod in purchased:
+                    continue
+                sim_score = product_similarity_df.loc[prod, similar_prod]
+                candidate_scores[similar_prod] = max(candidate_scores.get(similar_prod, 0), sim_score)
 
-        if not include_purchased:
-            already_purchased = item_matrix.loc[partner_id]
-            recs = [r for r in recs if not already_purchased[r]]
-
-        final_recs = list(recs)[:3]
-        final_scores = scores[:3]
+        top_items = sorted(candidate_scores.items(), key=lambda x: x[1], reverse=True)[:3]
+        final_recs = [item for item, _ in top_items]
+        final_scores = [float(score) for _, score in top_items]
 
         recommendations.append(final_recs)
         similarity_scores.append(final_scores)
@@ -100,6 +100,7 @@ def run_item_based(df, test_data_key, recommendation_key, is_lambda, bucket_name
     save_file(output_df, recommendation_key, is_lambda, bucket_name)
     logger.info("Item-based recommendations generated successfully.")
 
+    
 # -------------------- User-Based Recommendation --------------------
 def run_user_based(df, test_data_key, recommendation_key, is_lambda, bucket_name, include_purchased):
     logger.info("Running user-based recommendation...")
@@ -142,7 +143,7 @@ import numpy as np
 from collections import Counter
 from scipy.optimize import linprog
 
-def run_lp_scheme_mapping(df):
+def run_lp_scheme_mapping(df, is_lambda, bucket_name):
     metadata_cols = [
         'Partner_id', 'Geography', 'Stockist_Type', 'Scheme_Type', 'Sales_Value_Last_Period',
         'Sales_Quantity_Last_Period', 'MRP', 'Growth_Percentage', 'Discount_Applied',
@@ -164,7 +165,8 @@ def run_lp_scheme_mapping(df):
         "Sales_Value_Last_Period": "sum"
     }).reset_index()
 
-    optimization_data = product_schemes[["Product_id", "Scheme_Type", "Sales_Value_Last_Period"]]
+    optimization_data = product_schemes[["Partner_id", "Product_id", "Scheme_Type", "Sales_Value_Last_Period"]]
+
 
     def optimize_schemes(product_group):
         schemes = product_group["Scheme_Type"].unique()
@@ -183,25 +185,28 @@ def run_lp_scheme_mapping(df):
             top_schemes = [scheme_sales.index[i] for i in top_indices]
             return top_schemes + [None] * (3 - len(top_schemes))
         else:
+            logger.warning(f"LP failed for product group: {product_group[['Partner_id', 'Product_id']].drop_duplicates().values}")
             return [None, None, None]
+
 
     optimized_list = (
         optimization_data
-        .groupby("Product_id", group_keys=False)
-        .apply(optimize_schemes)
+        .groupby("Partner_id", group_keys=False)
+        .apply(optimize_schemes, include_groups=False) 
         .reset_index(drop=True)
     )
 
     optimized_df = pd.DataFrame(optimized_list.tolist(), columns=["Scheme_1", "Scheme_2", "Scheme_3"])
-    product_ids = optimization_data["Product_id"].drop_duplicates().reset_index(drop=True)
+    product_ids = optimization_data[["Partner_id", "Product_id"]].drop_duplicates().reset_index(drop=True)
     optimized_schemes = pd.concat([product_ids, optimized_df], axis=1)
 
     partners_per_product = df_melted.groupby("Product_id")["Partner_id"].apply(list).reset_index()
     final_output = partners_per_product.merge(optimized_schemes, on="Product_id", how="left")
-    final_output.to_csv("Top_Optimized_Schemes_with_LP.csv", index=False)
-    print("Saved: Top_Optimized_Schemes_with_LP.csv")
+    save_file(final_output, "Optimized_Product_Partner_Scheme_Mapping.csv", is_lambda, bucket_name)
+    logger.info("Saved: Optimized_Product_Partner_Scheme_Mapping.csv")
 
-def run_simple_scheme_mapping(df):
+
+def run_simple_scheme_mapping(df, is_lambda, bucket_name):
     product_columns = [
         'AIS(Air Insulated Switchgear)', 'RMU(Ring Main Unit)', 'PSS(Compact Sub-Stations)',
         'VCU(Vacuum Contactor Units)', 'E-House', 'VCB(Vacuum Circuit Breaker)',
@@ -235,26 +240,32 @@ def run_simple_scheme_mapping(df):
         })
 
     final_df = pd.DataFrame(product_scheme_data)
-    final_df.to_csv("Optimized_Product_Partner_Scheme_Mapping.csv", index=False)
-    print("Saved: Optimized_Product_Partner_Scheme_Mapping.csv")
+    save_file(final_df, "Optimized_Product_Partner_Scheme_Mapping.csv", is_lambda, bucket_name)
+    logger.info("Saved: Optimized_Product_Partner_Scheme_Mapping.csv")
 
-def run_scheme_mapping(df, mode="simple"):
+
+def run_scheme_mapping(df, mode="simple", is_lambda=False, bucket_name=""):
     if mode == "lp":
-        run_lp_scheme_mapping(df)
+        run_lp_scheme_mapping(df, is_lambda, bucket_name)
     elif mode == "simple":
-        run_simple_scheme_mapping(df)
+        run_simple_scheme_mapping(df, is_lambda, bucket_name)
     else:
         raise ValueError("Invalid analysis mode. Use 'simple' or 'lp'.")
-
 
 
 # -------------------- Final Mapping --------------------
 def safe_eval(val):
     try:
-        return ast.literal_eval(val) if isinstance(val, str) and val.startswith("[") else val
+        # Skip eval if already a list, numpy array, or a numpy float
+        if isinstance(val, (list, np.ndarray, np.generic)):
+            return val
+        if isinstance(val, str) and val.startswith("["):
+            return ast.literal_eval(val)
+        return val
     except Exception as e:
         logger.warning(f"Eval failed for value: {val}, error: {e}")
         return val
+
 
 def run_final_mapping(recommendation_key, mapping_key, final_output_key, is_lambda, bucket_name):
     logger.info("===== Starting Final Mapping Handler =====")
@@ -263,7 +274,14 @@ def run_final_mapping(recommendation_key, mapping_key, final_output_key, is_lamb
 
     df_scheme_mapping["Partner_id"] = df_scheme_mapping["Partner_id"].apply(safe_eval)
     df_recommendations["Recommended_Products"] = df_recommendations["Recommended_Products"].apply(safe_eval)
-    df_recommendations["Similarity_Scores"] = df_recommendations["Similarity_Scores"].apply(safe_eval)
+
+    if "Similarity_Scores" in df_recommendations.columns:
+        df_recommendations["Similarity_Scores"] = df_recommendations["Similarity_Scores"].apply(safe_eval)
+    else:
+        logger.warning("Similarity_Scores column missing — creating dummy scores.")
+        df_recommendations["Similarity_Scores"] = df_recommendations["Recommended_Products"].apply(
+            lambda x: [1.0] * len(x)
+        )
 
     results = []
     for _, row in df_recommendations.iterrows():
@@ -276,6 +294,7 @@ def run_final_mapping(recommendation_key, mapping_key, final_output_key, is_lamb
     df_final = pd.DataFrame(results, columns=["Partner_id", "Product_id", "Similarity_Scores", "Scheme_1", "Scheme_2", "Scheme_3"])
     save_file(df_final, final_output_key, is_lambda, bucket_name)
     logger.info("===== Final Mapping Completed Successfully =====")
+
 
 # -------------------- Evaluation --------------------
 def run_evaluation(test_data_key, recommendation_key, evaluation_output_key, is_lambda, bucket_name):
@@ -334,17 +353,6 @@ def run_evaluation(test_data_key, recommendation_key, evaluation_output_key, is_
 
 # -------------------- Lambda Handler --------------------
 def lambda_handler(event=None, context=None):
-    # Local testing config override
-    os.environ["IS_LAMBDA"] = "false"
-    os.environ["ACTIVE_APPROACH"] = "item_based"  # or "user_based"
-    os.environ["ANALYSIS_MODE"] = "lp"  # or "simple"
-    os.environ["BUCKET_NAME"] = "lk-scheme-recommendations"
-    os.environ["INPUT_KEY"] = "stockist_data.csv"
-    os.environ["TEST_DATA_KEY"] = "test_data.csv"
-    os.environ["RECOMMENDATION_OUTPUT_KEY"] = "Partner_Product_Recommendations.csv"
-    os.environ["MAPPING_INPUT_KEY"] = "Optimized_Product_Partner_Scheme_Mapping.csv"
-    os.environ["FINAL_MAPPING_OUTPUT_KEY"] = "Final_Partner_Product_Schemes.csv"
-    os.environ["EVALUATION_OUTPUT_KEY"] = "Evaluation_Metrics.csv"
     # -------------------- ENV Config --------------------
     active_approach = os.getenv("ACTIVE_APPROACH", "item_based")
     include_purchased = os.getenv("INCLUDE_PURCHASED", "true").lower() == "true"
@@ -368,7 +376,7 @@ def lambda_handler(event=None, context=None):
         raise ValueError("Invalid ACTIVE_APPROACH environment variable.")
 
     logger.info(f"Running scheme mapping using: {analysis_mode} mode")
-    run_scheme_mapping(df, mode=analysis_mode)
+    run_scheme_mapping(df, mode=analysis_mode, is_lambda=is_lambda, bucket_name=bucket_name)
     run_final_mapping(recommendation_key, mapping_key, final_output_key, is_lambda, bucket_name)
     run_evaluation(test_data_key, recommendation_key, evaluation_output_key, is_lambda, bucket_name)
     logger.info("===== Lambda Handler Execution Completed =====")
@@ -376,3 +384,8 @@ def lambda_handler(event=None, context=None):
         "statusCode": 200,
         "body": f"{active_approach} recommendation, scheme mapping and final mapping complete."
     }
+
+
+if __name__ == "__main__":
+    lambda_handler()
+
