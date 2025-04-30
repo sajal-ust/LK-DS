@@ -80,5 +80,7 @@ def run_lp_scheme_mapping(df=None, is_lambda=False):
     partners_per_product = df_melted.groupby("Product_id")["Partner_id"].apply(list).reset_index()
 
     final_optimized_output = partners_per_product.merge(optimized_schemes, on="Product_id", how="left")
-    final_optimized_output.to_csv("Top_Optimized_Schemes_with_LP.csv", index=False)
-    print("Saved: Top_Optimized_Schemes_with_LP.csv")
+   # final_optimized_output.to_csv("Top_Optimized_Schemes_with_LP.csv", index=False)
+    #print("Saved: Top_Optimized_Schemes_with_LP.csv")
+    return final_optimized_output  # Return the DataFrame
+

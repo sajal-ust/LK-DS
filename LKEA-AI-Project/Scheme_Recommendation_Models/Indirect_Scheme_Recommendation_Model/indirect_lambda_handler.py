@@ -1,139 +1,151 @@
+# ----------------- Import Required Libraries -----------------
 import os
 import logging
 import boto3
 import pandas as pd
+import numpy as np
+import ast
 from io import BytesIO
+from collections import Counter
+from sklearn.model_selection import train_test_split
+from sklearn.metrics.pairwise import pairwise_distances
+from sklearn.neighbors import NearestNeighbors
+from scipy.optimize import linprog
+import warnings
 
-#-------------------import required files-----------------------
-from Item_Based.Partner_product_recommendation_Evaluation import run_item_based_recommendation, run_evaluation
-from Item_Based.User_Partner_Product_recom_Eval import run_user_based_recommendation
-from Item_Based.linear_programing_partner_product__recommendation import run_lp_scheme_mapping
-from Item_Based.optimized__partner_product_recommendations import run_simple_scheme_mapping
-from Item_Based.final_scheme_recommendation_ import run_final_mapping
+warnings.filterwarnings('ignore')
 
-
-# ------------------- Logging Setup -------------------
+# ----------------- Logging Setup -----------------
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 if not logger.handlers:
-    handler = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
 
-# ------------------- S3 Client Setup -------------------
+# ----------------- Global Constants -----------------
+PRODUCT_COLS = [
+    "AIS(Air Insulated Switchgear)", "RMU(Ring Main Unit)", "PSS(Compact Sub-Stations)",
+    "VCU(Vacuum Contactor Units)", "E-House", "VCB(Vacuum Circuit Breaker)",
+    "ACB(Air Circuit Breaker)", "MCCB(Moduled Case Circuit Breaker)",
+    "SDF(Switch Disconnectors)", "BBT(Busbar Trunking)", "Modular Switches"
+]
+INPUT_BUCKET = os.environ.get('INPUT_BUCKET', 'lk-discount-model')
+OUTPUT_BUCKET = os.environ.get('OUTPUT_BUCKET', 'lk-discount-model')
+INPUT_KEY = os.environ.get('INPUT_KEY', 'stockist_data.csv')
+ACTIVE_APPROACH = os.environ.get('ACTIVE_APPROACH', 'item')  # 'item' or 'user'
+SCHEME_MAPPING_APPROACH = os.environ.get('SCHEME_MAPPING_APPROACH', 'lp')  # 'lp' or 'simple'
+IS_LAMBDA = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
+INCLUDE_PURCHASED = os.environ.get('INCLUDE_PURCHASED', 'true').lower() == 'true'
+TEST_KEY = os.environ.get("TEST_KEY", "test_data.csv")
+PARTNER_PRODUCT_KEY = os.environ.get("PARTNER_PRODUCT_KEY", "Partner_Product_Recommendations.csv")
+USER_PRODUCT_KEY = os.environ.get("USER_PRODUCT_KEY", "User_Based_Recommendations.csv")
+SCHEME_MAPPING_LP_KEY = os.environ.get("SCHEME_MAPPING_LP_KEY", "Top_Optimized_Schemes_with_LP.csv")
+SCHEME_MAPPING_SIMPLE_KEY = os.environ.get("SCHEME_MAPPING_SIMPLE_KEY", "Optimized_Product_Partner_Scheme_Mapping.csv")
+FINAL_SCHEME_KEY = os.environ.get("FINAL_SCHEME_KEY", "Final_Partner_Product_Schemes.csv")
+EVALUATION_KEY = os.environ.get("EVALUATION_KEY", "")  # will fallback to output_key if empty
+
 s3_client = boto3.client('s3')
-logger.info("AWS client created successfully.")
 
-bucket_name = "lk-scheme-recommendations"
-file_key = "stockist_data.csv"
-
-try:
-    logger.info("Starting to load file from S3...")
-    obj = s3_client.get_object(Bucket=bucket_name, Key=file_key)
-    df = pd.read_csv(obj['Body'])  # Reading CSV from the object body
-    logger.info(f"S3 Data loaded successfully with shape {df.shape}.")
-except Exception as e:
-    logger.error(f"Failed to load file from S3: {str(e)}")
-
-# ------------------- Helpers -------------------
-def save_file(df, output_key, is_lambda, bucket_name):
-    if is_lambda:
-        csv_buffer = BytesIO()
-        df.to_csv(csv_buffer, index=False)
-        s3_client.put_object(Bucket=bucket_name, Key=output_key, Body=csv_buffer.getvalue())
-        logger.info(f"Saved {output_key} to S3 bucket {bucket_name}")
-    else:
-        df.to_csv(output_key, index=False)
-        logger.info(f"Saved {output_key} locally")
-
-def load_file(input_key, is_lambda, bucket_name):
-    if is_lambda:
-        response = s3_client.get_object(Bucket=bucket_name, Key=input_key)
-        df = pd.read_csv(response['Body'])
-        logger.info(f"Loaded {input_key} from S3 bucket {bucket_name}")
-    else:
-        df = pd.read_csv(input_key)
-        logger.info(f"Loaded {input_key} locally")
-    return df
-
-# ------------------- Main Lambda Handler -------------------
-def lambda_handler(event=None, context=None):
-    
-    # -------------------- ENV Config --------------------
-    active_approach = os.getenv("ACTIVE_APPROACH", "item_based")
-    is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
-    analysis_mode = os.getenv("ANALYSIS_MODE", "simple")
-    bucket_name = os.getenv("BUCKET_NAME")
-    input_key = os.getenv("INPUT_KEY")
-
-    if not bucket_name or not input_key:
-        logger.error("Environment variables BUCKET_NAME or INPUT_KEY are missing!")
-        raise ValueError("Missing BUCKET_NAME or INPUT_KEY environment variables.")
-
-# -------------------- Load Data --------------------
+# ----------------- Helper Functions -----------------
+def load_file():
     try:
-        logger.info("Starting to load file from S3...")
-        bucket_name = "lk-scheme-recommendations"
-        file_key = "stockist_data.csv"
-        obj = s3_client.get_object(Bucket=bucket_name, Key=file_key)
-        df = pd.read_csv(obj['Body'])  # load into dataframe
-        logger.info(f"S3 Data loaded successfully with shape {df.shape}.")
+        if IS_LAMBDA:
+            logger.info(f"Loading from S3: {INPUT_BUCKET}/{INPUT_KEY}")
+            response = s3_client.get_object(Bucket=INPUT_BUCKET, Key=INPUT_KEY)
+            return pd.read_csv(BytesIO(response['Body'].read()))
+        else:
+            logger.info(f"Loading locally: {INPUT_KEY}")
+            return pd.read_csv(INPUT_KEY)
     except Exception as e:
-        logger.error(f"Failed to load file '{file_key}' from bucket '{bucket_name}': {str(e)}")
-        raise e  # Stop execution if file not loaded
+        logger.error(f"Failed to load file: {e}")
+        raise
 
-    # -------------------- Recommendation --------------------
-    include_purchased = True  # or False depending on requirement
-    rec_df, test_df = run_item_based_recommendation(df, include_purchased)
-    analysis_mode = os.getenv("ANALYSIS_MODE", "simple")
+def save_file(df, output_key):
+    try:
+        if IS_LAMBDA:
+            logger.info(f"Saving to S3: {OUTPUT_BUCKET}/{output_key}")
+            buffer = BytesIO()
+            df.to_csv(buffer, index=False)
+            buffer.seek(0)
+            s3_client.put_object(Bucket=OUTPUT_BUCKET, Body=buffer, Key=output_key)
+        else:
+            logger.info(f"Saving locally: {output_key}")
+            local_dir = os.path.dirname(output_key)
+            if local_dir and not os.path.exists(local_dir):
+                os.makedirs(local_dir, exist_ok=True)
+            df.to_csv(output_key, index=False)
+    except Exception as e:
+        logger.error(f"Failed to save file: {e}")
+        raise
 
-    bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
-    input_key = os.getenv("INPUT_KEY", "stockist_data.csv")
-    test_data_key = os.getenv("TEST_DATA_KEY", "test_data.csv")
-    recommendation_key = os.getenv("RECOMMENDATION_OUTPUT_KEY", "Partner_Product_Recommendations.csv")
-    mapping_key = os.getenv("MAPPING_INPUT_KEY", "Optimized_Product_Partner_Scheme_Mapping.csv")
-    final_output_key = os.getenv("FINAL_MAPPING_OUTPUT_KEY", "Final_Partner_Product_Schemes.csv")
-    evaluation_output_key = os.getenv("EVALUATION_OUTPUT_KEY", "Scheme_Evaluation_Metrics.csv")
 
+def save_test_file(df, output_key):
+    try:
+        save_file(df, output_key)
+    except Exception as e:
+        logger.error(f"Failed to save test file: {e}")
+        raise
+
+
+# ----------------- Lambda Handler -----------------
+def lambda_handler(event, context):
     logger.info("===== Lambda Handler Execution Started =====")
 
-    # -------------------- Step 0: Load Input File --------------------
-    df = load_file(input_key, is_lambda, bucket_name)
+    try:
+        df = load_file()
 
-    # -------------------- Step 1: Recommendation Generation --------------------
-    if active_approach == 'item_based':
-        logger.info("Running Item-Based Recommendation...")
-        rec_df, test_df = run_item_based_recommendation(df, include_purchased)
-    elif active_approach == 'user_based':
-        logger.info("Running User-Based Recommendation...")
-        rec_df, test_df = run_user_based_recommendation(df, include_purchased)
-    else:
-        raise ValueError(f"Invalid ACTIVE_APPROACH: {active_approach}")
+        # Run Recommendation
+        if ACTIVE_APPROACH == 'item':
+            from Item_Based.Partner_product_recommendation_Evaluation import run_item_based_recommendation
+            result_df, test_df = run_item_based_recommendation(df, INCLUDE_PURCHASED)
+            output_key = PARTNER_PRODUCT_KEY
+        elif ACTIVE_APPROACH == 'user':
+            from User_Based.User_based_recommendation_Evaluation import run_user_based_recommendation
+            result_df, test_df = run_user_based_recommendation(df, INCLUDE_PURCHASED)
+            output_key = USER_PRODUCT_KEY
 
-    save_file(rec_df, recommendation_key, is_lambda, bucket_name)
-    save_file(test_df, test_data_key, is_lambda, bucket_name)
+        else:
+            raise ValueError("Invalid ACTIVE_APPROACH value. Must be 'item' or 'user'.")
 
-    # -------------------- Step 2: Scheme Mapping --------------------
-    if analysis_mode == 'lp':
-        logger.info("Running LP-Based Scheme Mapping...")
-        scheme_mapping_df = run_lp_scheme_mapping(df)
-        save_file(scheme_mapping_df, mapping_key, is_lambda, bucket_name)
-    elif analysis_mode == 'simple':
-        logger.info("Running Simple Scheme Mapping...")
-        scheme_mapping_df = run_simple_scheme_mapping(df)
-        save_file(scheme_mapping_df, mapping_key, is_lambda, bucket_name)
-    else:
-        raise ValueError(f"Invalid ANALYSIS_MODE: {analysis_mode}")
+        save_file(result_df, output_key)
+        save_test_file(test_df, TEST_KEY)
 
-    # -------------------- Step 3: Final Mapping --------------------
-    logger.info("Running Final Mapping...")
-    final_mapping_df = run_final_mapping(recommendation_key, mapping_key, is_lambda, bucket_name)
-    save_file(final_mapping_df, final_output_key, is_lambda, bucket_name)
 
-    # -------------------- Step 4: Evaluation --------------------
-    logger.info("Running Evaluation...")
-    evaluation_df = run_evaluation(test_data_key, recommendation_key, is_lambda, bucket_name)
-    save_file(evaluation_df, evaluation_output_key, is_lambda, bucket_name)
+        # Scheme Mapping
+       
+        if SCHEME_MAPPING_APPROACH == 'lp':
+           from Item_Based.linear_programing_partner_product__recommendation import run_lp_scheme_mapping
+           scheme_df = run_lp_scheme_mapping()
+           save_file(scheme_df, SCHEME_MAPPING_LP_KEY)
+           scheme_file = SCHEME_MAPPING_LP_KEY
+        elif SCHEME_MAPPING_APPROACH == 'simple':
+           from Item_Based.optimized__partner_product_recommendations import run_simple_scheme_mapping
+           run_simple_scheme_mapping()
+           scheme_file = SCHEME_MAPPING_SIMPLE_KEY
 
-    logger.info("===== Lambda Handler Execution Completed =====")
+        else:
+            raise ValueError("Invalid SCHEME_MAPPING_APPROACH value. Must be 'lp' or 'simple'.")
+
+        # Final Mapping
+        
+        from Final_Mapping import run_final_mapping
+        run_final_mapping(output_key, scheme_file, FINAL_SCHEME_KEY, IS_LAMBDA, OUTPUT_BUCKET)
+
+
+        # Evaluation
+        
+        from Evaluation import run_evaluation
+        eval_input = EVALUATION_KEY if EVALUATION_KEY else output_key
+        run_evaluation(eval_input)
+
+        logger.info("===== All Steps Completed Successfully =====")
+
+    except Exception as e:
+        logger.error(f"Lambda Handler Failed: {e}")
+
+
+if __name__ == "__main__":
+    lambda_handler({}, {})
+

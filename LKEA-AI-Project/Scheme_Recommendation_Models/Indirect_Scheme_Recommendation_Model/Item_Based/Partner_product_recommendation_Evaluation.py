@@ -6,9 +6,10 @@ from sklearn.metrics.pairwise import pairwise_distances
 
 warnings.filterwarnings('ignore')
 
-def run_item_based_recommendation(include_purchased=True, is_lambda=False):
+def run_item_based_recommendation(df, include_purchased):
+
     # Load dataset
-    df = pd.read_csv("stockist_data.csv")
+   # df = pd.read_csv("stockist_data.csv")
 
     # Define product columns
     product_cols = [

@@ -1,11 +1,12 @@
+# Use official AWS Lambda Python base image
 FROM public.ecr.aws/lambda/python:3.10
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy your project code to the container
+COPY . .
 
-COPY indirect_lambda_handler.py .
-COPY Item_Based/ ./Item_Based/
-COPY stockist_data.csv .
+# Install dependencies
+RUN pip install -r requirements.txt
 
+# Set the handler
 CMD ["indirect_lambda_handler.lambda_handler"]
 

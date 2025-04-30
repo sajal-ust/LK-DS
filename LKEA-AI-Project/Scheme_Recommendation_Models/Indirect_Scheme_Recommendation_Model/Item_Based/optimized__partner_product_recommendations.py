@@ -3,12 +3,13 @@ import pandas as pd  # For working with data in tables (DataFrames)
 from collections import Counter  # For counting the frequency of items in a list or collection
 import ast  # For safely converting strings that look like Python data structures back into Python objects
 
-def run_simple_scheme_mapping():
+def run_simple_scheme_mapping(df):
+
     """Simple Scheme Mapping Code"""
 
     # Load dataset
-    file_path = "stockist_data.csv"
-    df = pd.read_csv(file_path)
+    #file_path = "stockist_data.csv"
+    #df = pd.read_csv(file_path)
 
     # Define relevant product columns
     product_columns = [
@@ -65,3 +66,4 @@ def run_simple_scheme_mapping():
     final_scheme_mapping_path = "Optimized_Product_Partner_Scheme_Mapping.csv"
     final_df.to_csv(final_scheme_mapping_path, index=False)
     print("Optimized_Product_Partner_Scheme_Mapping.csv saved successfully!")
+    return final_df
