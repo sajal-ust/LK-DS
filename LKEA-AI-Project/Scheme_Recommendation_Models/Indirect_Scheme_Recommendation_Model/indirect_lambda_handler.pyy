@@ -49,45 +49,6 @@ EVALUATION_KEY = os.environ.get("EVALUATION_KEY", "")  # will fallback to output
 s3_client = boto3.client('s3')
 
 # ----------------- Helper Functions -----------------
-def parse_similarity_scores(scores):
-    try:
-        if isinstance(scores, str) and scores.startswith("["):
-            parsed = ast.literal_eval(scores)
-            if isinstance(parsed, list):
-                return [float(s) for s in parsed]
-        elif isinstance(scores, list):
-            return [float(s) for s in scores]
-    except Exception:
-        pass
-    return []
-
-def save_file(df, output_key_or_env, is_lambda=False, bucket_name=None, use_env_key=False):
-    try:
-        if is_lambda:
-            s3_key = os.environ.get(output_key_or_env) if use_env_key else output_key_or_env
-            if not s3_key:
-                raise ValueError(f"S3 key not found in environment variable: {output_key_or_env}")
-
-            # Save temporarily to /tmp before uploading to S3
-            local_tmp_path = f"/tmp/{os.path.basename(s3_key)}"
-            logger.info(f"Saving temporarily to: {local_tmp_path}")
-            df.to_csv(local_tmp_path, index=False)
-
-            logger.info(f"Uploading to S3: {bucket_name}/{s3_key}")
-            with open(local_tmp_path, "rb") as f:
-                s3_client.upload_fileobj(f, bucket_name, s3_key)
-        else:
-            logger.info(f"Saving locally: {output_key_or_env}")
-            local_dir = os.path.dirname(output_key_or_env)
-            if local_dir:
-                os.makedirs(local_dir, exist_ok=True)
-            df.to_csv(output_key_or_env, index=False)
-
-    except Exception as e:
-        logger.error(f"Failed to save file: {e}")
-        raise
-
-
 def load_file():
     try:
         if IS_LAMBDA:
@@ -100,10 +61,35 @@ def load_file():
     except Exception as e:
         logger.error(f"Failed to load file: {e}")
         raise
- 
-def save_test_file(df, output_key, is_lambda=False, bucket_name=None):
+
+def save_file(df, output_key, is_lambda=False, bucket_name=None):
     try:
-        save_file(df, output_key, is_lambda=is_lambda, bucket_name=bucket_name)
+        if is_lambda:
+            logger.info(f"Saving to S3: {bucket_name}/{output_key}")
+            buffer = BytesIO()
+            df.to_csv(buffer, index=False)
+            buffer.seek(0)
+            s3_client.put_object(Bucket=bucket_name, Body=buffer.getvalue(), Key=output_key)
+        else:
+            logger.info(f"Saving locally: {output_key}")
+
+            df.to_csv(output_key, index=False)
+    except Exception as e:
+        logger.error(f"Failed to save file: {e}")
+        raise
+
+            local_dir = os.path.dirname(output_key)
+            if local_dir and not os.path.exists(local_dir):
+                os.makedirs(local_dir, exist_ok=True)
+            df.to_csv(output_key, index=False)
+    except Exception as e:
+        logger.error(f"Failed to save file: {e}")
+        raise
+
+
+def save_test_file(df, output_key):
+    try:
+        save_file(df, output_key)
     except Exception as e:
         logger.error(f"Failed to save test file: {e}")
         raise
@@ -122,21 +108,20 @@ def lambda_handler(event, context):
             result_df, test_df = run_item_based_recommendation(df, INCLUDE_PURCHASED)
             output_key = PARTNER_PRODUCT_KEY
         elif ACTIVE_APPROACH == 'user':
-            from user_based_lambda_recommendation import run_user_based_recommendation
+            from User_Based.User_based_recommendation_Evaluation import run_user_based_recommendation
             result_df, test_df = run_user_based_recommendation(df, INCLUDE_PURCHASED)
             output_key = USER_PRODUCT_KEY
-            
-        
+
         else:
             raise ValueError("Invalid ACTIVE_APPROACH value. Must be 'item' or 'user'.")
 
         # Clean and serialize before saving
-        result_df["Similarity_Scores"] = result_df["Similarity_Scores"].apply(parse_similarity_scores)
+        result_df["Similarity_Scores"] = result_df["Similarity_Scores"].apply(lambda scores: [float(s) for s in scores])
         result_df["Recommended_Products"] = result_df["Recommended_Products"].apply(str)
         result_df["Similarity_Scores"] = result_df["Similarity_Scores"].apply(str)
 
-        save_file(result_df, output_key, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
-        save_file(test_df, TEST_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
+        save_file(result_df, output_key)
+        save_test_file(test_df, TEST_KEY)
 
 
         # Scheme Mapping
@@ -144,12 +129,12 @@ def lambda_handler(event, context):
         if SCHEME_MAPPING_APPROACH == 'lp':
            from Item_Based.linear_programing_partner_product__recommendation import run_lp_scheme_mapping
            scheme_df = run_lp_scheme_mapping()
-           save_file(scheme_df, SCHEME_MAPPING_LP_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
+           save_file(scheme_df, SCHEME_MAPPING_LP_KEY)
            scheme_file = SCHEME_MAPPING_LP_KEY
         elif SCHEME_MAPPING_APPROACH == 'simple':
            from Item_Based.optimized__partner_product_recommendations import run_simple_scheme_mapping
            scheme_df = run_simple_scheme_mapping(df)  
-           save_file(scheme_df, SCHEME_MAPPING_SIMPLE_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)  
+           save_file(scheme_df, SCHEME_MAPPING_SIMPLE_KEY)  
            scheme_file = SCHEME_MAPPING_SIMPLE_KEY  
 
         else:
@@ -169,17 +154,11 @@ def lambda_handler(event, context):
         eval_input = output_key  # typically Partner_Product_Recommendations.csv
         results = run_evaluation(eval_input)
                                                                                                                                      # this pushes it to S3 if IS_LAMBDA is true
-        if results is None or results.empty:
+        if not results:
             logger.warning("Evaluation returned no results — CSV will be blank.")
         else:
-            eval_df = results
-            save_file(
-                eval_df,
-                EVALUATION_KEY if EVALUATION_KEY else "evaluation_metrics.csv",
-                is_lambda=IS_LAMBDA,
-                bucket_name=OUTPUT_BUCKET
-             )
-
+            eval_df = pd.DataFrame(results)
+            save_file(eval_df, EVALUATION_KEY if EVALUATION_KEY else "evaluation_metrics.csv")
             logger.info(f"Saved evaluation metrics to {EVALUATION_KEY if EVALUATION_KEY else 'evaluation_metrics.csv'}")
 
         logger.info("===== All Steps Completed Successfully =====")

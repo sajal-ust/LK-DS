@@ -85,3 +85,13 @@ def run_evaluation(recommendation_output_file):
         print(f"  Avg Precision : {r['Avg Precision']}")
         print(f"  Avg Recall    : {r['Avg Recall']}")
         print(f"  Avg F1 Score  : {r['Avg F1 Score']}")
+   
+    # Convert to DataFrame and save 
+    evaluation_df = pd.DataFrame(results)
+ 
+    # Save using save_file() 
+    from indirect_lambda_handler import save_file
+
+    output_key = "evaluation_metrics.csv"
+    save_file(evaluation_df, output_key, is_lambda=True, bucket_name="lk-scheme-recommendations")
+    return evaluation_df
