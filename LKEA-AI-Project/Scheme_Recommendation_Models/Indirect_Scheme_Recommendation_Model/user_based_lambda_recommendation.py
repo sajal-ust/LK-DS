@@ -40,11 +40,12 @@ def run_user_based_recommendation(df, include_purchased=True):
         similarity_scores = []
 
         for idx, dist in zip(indices.flatten(), distances.flatten()):
-            if idx == 0:
-                continue
-
             neighbor_id = train_user_ids[idx]
+            if str(neighbor_id) == str(partner_id):
+               continue
+
             neighbor_products = set(train_data.loc[neighbor_id][train_data.loc[neighbor_id] == 1].index)
+ 
 
             if include_purchased:
                 recommended_products.extend(list(neighbor_products))

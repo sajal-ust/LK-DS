@@ -56,9 +56,9 @@ def run_simple_scheme_mapping(df):
     final_df,
     SCHEME_MAPPING_SIMPLE_KEY,
     is_lambda=IS_LAMBDA,
-    bucket_name=OUTPUT_BUCKET,
-    use_env_key=True
-)
+    bucket_name=OUTPUT_BUCKET
+    )
+
 
 
     print(f"{SCHEME_MAPPING_SIMPLE_KEY} saved successfully!")

@@ -61,12 +61,10 @@ def parse_similarity_scores(scores):
         pass
     return []
 
-def save_file(df, output_key_or_env, is_lambda=False, bucket_name=None, use_env_key=False):
+def save_file(df, s3_key, is_lambda=False, bucket_name=None):
     try:
         if is_lambda:
-            s3_key = os.environ.get(output_key_or_env) if use_env_key else output_key_or_env
-            if not s3_key:
-                raise ValueError(f"S3 key not found in environment variable: {output_key_or_env}")
+
 
             # Save temporarily to /tmp before uploading to S3
             local_tmp_path = f"/tmp/{os.path.basename(s3_key)}"
@@ -77,11 +75,10 @@ def save_file(df, output_key_or_env, is_lambda=False, bucket_name=None, use_env_
             with open(local_tmp_path, "rb") as f:
                 s3_client.upload_fileobj(f, bucket_name, s3_key)
         else:
-            logger.info(f"Saving locally: {output_key_or_env}")
-            local_dir = os.path.dirname(output_key_or_env)
-            if local_dir:
-                os.makedirs(local_dir, exist_ok=True)
-            df.to_csv(output_key_or_env, index=False)
+            logger.info(f"Saving locally: {s3_key}")
+            local_dir = os.path.dirname(s3_key)
+            df.to_csv(s3_key, index=False)
+
 
     except Exception as e:
         logger.error(f"Failed to save file: {e}")
