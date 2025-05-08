@@ -11,9 +11,8 @@ ENV IS_LAMBDA=true
 
 # Install Python dependencies
 #RUN pip install torch transformers pandas boto3 -t /opt/python
-RUN pip install python-dotenv
-RUN pip install numpy==1.24.4 pandas boto3 scikit-learn
-RUN pip install openai==0.28
+RUN pip install -r requirements.txt
+
 
 # Command to run
 CMD ["gpt_lambda.lambda_handler"]
