@@ -1,26 +1,26 @@
 import pandas as pd
 from collections import Counter
-import ast
-import os
-from indirect_lambda_handler import save_file, load_file
-
-
-
-SCHEME_MAPPING_SIMPLE_KEY = os.environ.get("SCHEME_MAPPING_SIMPLE_KEY", "Optimized_Product_Partner_Scheme_Mapping.csv")
-IS_LAMBDA = os.environ.get("IS_LAMBDA", "false").lower() == "true"
-OUTPUT_BUCKET = os.environ.get("OUTPUT_BUCKET", "lk-scheme-recommendations")
 
 def run_simple_scheme_mapping(df):
-    """Simple Scheme Mapping with Lambda S3 compatibility"""
+    """
+    Perform simple scheme mapping by choosing top-3 schemes by total Sales Quantity per product.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with product purchase and scheme info.
+
+    Returns:
+        pd.DataFrame: Partner_id, Product_id, Scheme_1, Scheme_2, Scheme_3
+    """
 
     product_columns = [
         'AIS(Air Insulated Switchgear)', 'RMU(Ring Main Unit)', 'PSS(Compact Sub-Stations)',
-        'VCU(Vacuum Contactor Units)', 'E-House', 'VCB(Vacuum Circuit Breaker)', 'ACB(Air Circuit Breaker)',
-        'MCCB(Moduled Case Circuit Breaker)', 'SDF(Switch Disconnectors)', 'BBT(Busbar Trunking)',
-        'Modular Switches', 'Starter', 'Controller', 'Solar Solutions', 'Pump Starter and Controller'
+        'VCU(Vacuum Contactor Units)', 'E-House', 'VCB(Vacuum Circuit Breaker)',
+        'ACB(Air Circuit Breaker)', 'MCCB(Moduled Case Circuit Breaker)', 'SDF(Switch Disconnectors)',
+        'BBT(Busbar Trunking)', 'Modular Switches', 'Starter', 'Controller',
+        'Solar Solutions', 'Pump Starter and Controller'
     ]
-    existing_product_columns = [col for col in product_columns if col in df.columns]
 
+    existing_product_columns = [col for col in product_columns if col in df.columns]
     product_scheme_data = []
 
     for product in existing_product_columns:
@@ -50,17 +50,12 @@ def run_simple_scheme_mapping(df):
         })
 
     final_df = pd.DataFrame(product_scheme_data)
-
-    # Use Lambda-safe saving
-    save_file(
-    final_df,
-    SCHEME_MAPPING_SIMPLE_KEY,
-    is_lambda=IS_LAMBDA,
-    bucket_name=OUTPUT_BUCKET
-    )
-
-
-
-    print(f"{SCHEME_MAPPING_SIMPLE_KEY} saved successfully!")
     return final_df
 
+
+# Optional for testing
+if __name__ == "__main__":
+    df = pd.read_csv("stockist_data.csv")
+    result = run_simple_scheme_mapping(df)
+    print(result.head())
+    result.to_csv("Top_Optimized_Schemes_Simple.csv", index=False)

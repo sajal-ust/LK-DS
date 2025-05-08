@@ -44,7 +44,7 @@ USER_PRODUCT_KEY = os.environ.get("USER_PRODUCT_KEY", "User_Based_Recommendation
 SCHEME_MAPPING_LP_KEY = os.environ.get("SCHEME_MAPPING_LP_KEY", "Top_Optimized_Schemes_with_LP.csv")
 SCHEME_MAPPING_SIMPLE_KEY = os.environ.get("SCHEME_MAPPING_SIMPLE_KEY", "Optimized_Product_Partner_Scheme_Mapping.csv")
 FINAL_SCHEME_KEY = os.environ.get("FINAL_SCHEME_KEY", "Final_Partner_Product_Schemes.csv")
-EVALUATION_KEY = os.environ.get("EVALUATION_KEY", "")  # will fallback to output_key if empty
+EVALUATION_KEY = os.environ.get("EVALUATION_KEY", "")  # fallback to default if empty
 
 s3_client = boto3.client('s3')
 
@@ -64,26 +64,18 @@ def parse_similarity_scores(scores):
 def save_file(df, s3_key, is_lambda=False, bucket_name=None):
     try:
         if is_lambda:
-
-
-            # Save temporarily to /tmp before uploading to S3
             local_tmp_path = f"/tmp/{os.path.basename(s3_key)}"
             logger.info(f"Saving temporarily to: {local_tmp_path}")
             df.to_csv(local_tmp_path, index=False)
-
             logger.info(f"Uploading to S3: {bucket_name}/{s3_key}")
             with open(local_tmp_path, "rb") as f:
                 s3_client.upload_fileobj(f, bucket_name, s3_key)
         else:
             logger.info(f"Saving locally: {s3_key}")
-            local_dir = os.path.dirname(s3_key)
             df.to_csv(s3_key, index=False)
-
-
     except Exception as e:
         logger.error(f"Failed to save file: {e}")
         raise
-
 
 def load_file():
     try:
@@ -97,14 +89,13 @@ def load_file():
     except Exception as e:
         logger.error(f"Failed to load file: {e}")
         raise
- 
+
 def save_test_file(df, output_key, is_lambda=False, bucket_name=None):
     try:
         save_file(df, output_key, is_lambda=is_lambda, bucket_name=bucket_name)
     except Exception as e:
         logger.error(f"Failed to save test file: {e}")
         raise
-
 
 # ----------------- Lambda Handler -----------------
 def lambda_handler(event, context):
@@ -122,8 +113,6 @@ def lambda_handler(event, context):
             from user_based_lambda_recommendation import run_user_based_recommendation
             result_df, test_df = run_user_based_recommendation(df, INCLUDE_PURCHASED)
             output_key = USER_PRODUCT_KEY
-            
-        
         else:
             raise ValueError("Invalid ACTIVE_APPROACH value. Must be 'item' or 'user'.")
 
@@ -135,58 +124,50 @@ def lambda_handler(event, context):
         save_file(result_df, output_key, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
         save_file(test_df, TEST_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
 
-
         # Scheme Mapping
-       
         if SCHEME_MAPPING_APPROACH == 'lp':
-           from Item_Based.linear_programing_partner_product__recommendation import run_lp_scheme_mapping
-           scheme_df = run_lp_scheme_mapping()
-           save_file(scheme_df, SCHEME_MAPPING_LP_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
-           scheme_file = SCHEME_MAPPING_LP_KEY
+            from Item_Based.linear_programing_partner_product__recommendation import run_lp_scheme_mapping
+            scheme_df = run_lp_scheme_mapping()
+            save_file(scheme_df, SCHEME_MAPPING_LP_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
+            scheme_file = SCHEME_MAPPING_LP_KEY
         elif SCHEME_MAPPING_APPROACH == 'simple':
-           from Item_Based.optimized__partner_product_recommendations import run_simple_scheme_mapping
-           scheme_df = run_simple_scheme_mapping(df)  
-           save_file(scheme_df, SCHEME_MAPPING_SIMPLE_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)  
-           scheme_file = SCHEME_MAPPING_SIMPLE_KEY  
-
+            from Item_Based.optimized__partner_product_recommendations import run_simple_scheme_mapping
+            scheme_df = run_simple_scheme_mapping(df)
+            save_file(scheme_df, SCHEME_MAPPING_SIMPLE_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
+            scheme_file = SCHEME_MAPPING_SIMPLE_KEY
         else:
             raise ValueError("Invalid SCHEME_MAPPING_APPROACH value. Must be 'lp' or 'simple'.")
 
         # Final Mapping
-        
         from Final_Mapping import run_final_mapping
         logger.info(f"Running final mapping using {scheme_file} to generate {FINAL_SCHEME_KEY}")
         run_final_mapping(output_key, scheme_file, FINAL_SCHEME_KEY, IS_LAMBDA, OUTPUT_BUCKET)
 
-
         # Evaluation
-        
         from Evaluation import run_evaluation
-
-        eval_input = output_key  # typically Partner_Product_Recommendations.csv
+        eval_input = output_key
         results = run_evaluation(eval_input)
-                                                                                                                                     # this pushes it to S3 if IS_LAMBDA is true
+
         if results is None or results.empty:
             logger.warning("Evaluation returned no results — CSV will be blank.")
         else:
             eval_df = results
-            save_file(
-                eval_df,
-                EVALUATION_KEY if EVALUATION_KEY else "evaluation_metrics.csv",
-                is_lambda=IS_LAMBDA,
-                bucket_name=OUTPUT_BUCKET
-             )
-
-            logger.info(f"Saved evaluation metrics to {EVALUATION_KEY if EVALUATION_KEY else 'evaluation_metrics.csv'}")
+            eval_key = EVALUATION_KEY if EVALUATION_KEY else "evaluation_metrics.csv"
+            save_file(eval_df, eval_key, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
+            logger.info(f"Saved evaluation metrics to {eval_key}")
 
         logger.info("===== All Steps Completed Successfully =====")
+        return {
+            "statusCode": 200,
+            "message": "Lambda completed successfully"
+        }
 
     except Exception as e:
         logger.error(f"Lambda Handler Failed: {e}")
+        return {
+            "statusCode": 500,
+            "message": f"Lambda failed: {str(e)}"
+        }
 
-    return {
-         "statusCode": 200,
-         "message": "Lambda completed successfully"
-    } 
 if __name__ == "__main__":
     lambda_handler({}, {})
