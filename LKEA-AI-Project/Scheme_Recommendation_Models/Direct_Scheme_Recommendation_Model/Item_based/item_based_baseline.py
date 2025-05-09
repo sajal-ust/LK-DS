@@ -1,62 +1,81 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import jaccard_score
 from sklearn.model_selection import train_test_split
 
-def run_item_based_recommendation(df):
-    """
-    Run item-based scheme recommendation using Jaccard similarity.
+# --- Load dataset ---
+df = pd.read_csv(r"C:\\Users\\290938\\OneDrive - UST\\Desktop\\LK-Git\\LK-DS\\LKEA-AI-Project\\Scheme_Recommendation_Models\\Direct_Scheme_Recommendation_Model\\Item_based\\Augmented_Stockist_Data.csv")
 
-    Args:
-        df (pd.DataFrame): Full stockist data.
+# --- Compute Engagement Score ---
+df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (
+    df["Feedback_Score"] + df["Growth_Percentage"]
+)
 
-    Returns:
-        recommendation_df (pd.DataFrame): Scheme recommendations.
-        test_df (pd.DataFrame): Held-out test data for evaluation.
-    """
-    # 1. Train/Test Split
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+# --- Train-test split ---
+train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+train_df.to_csv("Train_Data.csv", index=False)
+test_df.to_csv("Test_Data.csv", index=False)
+# --- Partner × Scheme matrix ---
+item_scheme_matrix = train_df.pivot_table(
+    index="Partner_id",
+    columns="Scheme_Type",
+    values="Engagement_Score",
+    aggfunc="mean",
+    fill_value=0
+)
 
-    # 2. Prepare (Partner, Product) → Scheme matrix
-    partner_product_schemes = train_df.groupby(["Partner_id", "Product_id"])["Scheme_Type"].apply(list).reset_index()
-    partner_product_schemes["Entity"] = partner_product_schemes["Partner_id"] + "_" + partner_product_schemes["Product_id"]
+# --- Compute dynamic threshold (mean of all non-zero scores) ---
+non_zero_scores = item_scheme_matrix[item_scheme_matrix > 0].stack()
+threshold = non_zero_scores.mean()
 
-    mlb = MultiLabelBinarizer()
-    scheme_matrix = pd.DataFrame(
-        mlb.fit_transform(partner_product_schemes["Scheme_Type"]),
-        index=partner_product_schemes["Entity"],
-        columns=mlb.classes_
-    ).T
+# --- Binarize using dynamic threshold ---
+binary_scheme_matrix = (item_scheme_matrix >= threshold).astype(int)
 
-    # 3. Compute Jaccard similarity
-    similarity_matrix = pd.DataFrame(index=scheme_matrix.index, columns=scheme_matrix.index, dtype=float)
-    for i in range(len(scheme_matrix)):
-        for j in range(len(scheme_matrix)):
-            similarity_matrix.iloc[i, j] = (
-                jaccard_score(scheme_matrix.iloc[i], scheme_matrix.iloc[j])
-                if i != j else 1.0
+# --- Transpose to get Scheme × Partner matrix ---
+scheme_matrix = binary_scheme_matrix.T
+
+# --- Jaccard similarity between schemes ---
+similarity_matrix = pd.DataFrame(index=scheme_matrix.index, columns=scheme_matrix.index, dtype=float)
+
+for i in range(len(scheme_matrix)):
+    for j in range(len(scheme_matrix)):
+        if i != j:
+            similarity_matrix.iloc[i, j] = jaccard_score(
+                scheme_matrix.iloc[i].values, scheme_matrix.iloc[j].values
             )
+        else:
+            similarity_matrix.iloc[i, j] = 1.0
 
-    # 4. Recommend top-3 schemes
-    test_pairs = test_df[["Partner_id", "Product_id", "Scheme_Type"]].drop_duplicates()
-    recommendations = []
+# --- Generate top-3 scheme recommendations per test pair ---
+recommendations = []
+test_pairs = test_df[["Partner_id", "Product_id", "Scheme_Type"]].drop_duplicates()
 
-    for _, row in test_pairs.iterrows():
-        partner, product, current_scheme = row["Partner_id"], row["Product_id"], row["Scheme_Type"]
-        if current_scheme in similarity_matrix.index:
-            similar_schemes = similarity_matrix.loc[current_scheme].drop(current_scheme).sort_values(ascending=False).head(3)
-            sim_list = similar_schemes.index.tolist()
-            recommendations.append({
-                "Partner_id": partner,
-                "Product_id": product,
-                "Similarity_Score": round(similar_schemes.mean(), 6),
-                "Scheme_1": sim_list[0] if len(sim_list) > 0 else "No Scheme",
-                "Scheme_2": sim_list[1] if len(sim_list) > 1 else "No Scheme",
-                "Scheme_3": sim_list[2] if len(sim_list) > 2 else "No Scheme"
-            })
+for _, row in test_pairs.iterrows():
+    partner = row["Partner_id"]
+    product = row["Product_id"]
+    current_scheme = row["Scheme_Type"]
 
-    recommendation_df = pd.DataFrame(recommendations)
-    return recommendation_df, test_df
+    if current_scheme in similarity_matrix.index:
+        similar_schemes = similarity_matrix.loc[current_scheme].drop(current_scheme).sort_values(ascending=False).head(3)
+        sim_list = similar_schemes.index.tolist()
+
+        recommendations.append({
+            "Partner_id": partner,
+            "Product_id": product,
+            "Similarity_Score": round(similar_schemes.mean(), 6),
+            "Scheme_1": sim_list[0] if len(sim_list) > 0 else "No Scheme",
+            "Scheme_2": sim_list[1] if len(sim_list) > 1 else "No Scheme",
+            "Scheme_3": sim_list[2] if len(sim_list) > 2 else "No Scheme"
+        })
+    else:
+        print(f"Scheme '{current_scheme}' not found in training data.")
+
+# --- Save recommendations ---
+recommendation_df = pd.DataFrame(recommendations)
+recommendation_df.to_csv("Scheme_Recommendations.csv", index=False)
+
+# --- Preview output ---
+print(recommendation_df.head())
+
 
 

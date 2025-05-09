@@ -6,7 +6,7 @@ from scipy.sparse import csr_matrix
 
 def run_user_based_model_without_engagement():
     # Load dataset
-    df = pd.read_csv("Augmented_Stockist_Dat.csv")
+    df = pd.read_csv(r"C:\Users\290938\OneDrive - UST\Desktop\LK-Git\LK-DS\LKEA-AI-Project\Scheme_Recommendation_Models\Direct_Scheme_Recommendation_Model\User_based\Augmented_Stockist_Data.csv")
 
     # Train-Test Split
     train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Partner_id"])
