@@ -47,8 +47,13 @@ def run_user_based_model_without_engagement():
 
         top_schemes = (
             train_df[train_df["Partner_id"] == similar_user]["Scheme_Type"]
-            .value_counts().head(3).index.tolist()
+            .value_counts()
+            .sort_values(ascending=False)
+            .head(3)
+            .index
+            .tolist()
         )
+        
         while len(top_schemes) < 3:
             top_schemes.append("No Scheme")
 
