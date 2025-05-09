@@ -1,92 +1,82 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import jaccard_score
 from sklearn.model_selection import train_test_split
 
-def run_item_based_model_with_engagement():
-    """
-    Runs item-based scheme recommendation using Jaccard similarity and Engagement Score.
+# --- Load dataset ---
+df = pd.read_csv(r"Augmented_Stockist_Data.csv")
 
-    Returns:
-        pd.DataFrame: Final recommendation DataFrame
-        pd.DataFrame: Test dataset used for evaluation
-    """
-    # Load dataset
-    df = pd.read_csv("Revised_Codes/Final Codes/Baseline Recommendation model/Direct/Item-Based/Augmented_Stockist_Dat.csv")
+# --- Compute Engagement Score ---
+df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (
+    df["Feedback_Score"] + df["Growth_Percentage"]
+)
 
-    # Compute Engagement Score
-    df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (
-        df["Feedback_Score"] + df["Growth_Percentage"]
-    )
+# --- Train-test split ---
+train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+train_df.to_csv("Train_Data.csv", index=False)
+test_df.to_csv("Test_Data.csv", index=False)
 
-    # Split into train and test sets
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+# --- Partner × Scheme matrix ---
+item_scheme_matrix = train_df.pivot_table(
+    index="Partner_id",
+    columns="Scheme_Type",
+    values="Engagement_Score",
+    aggfunc="mean",
+    fill_value=0
+)
 
-    print("Train shape:", train_df.shape)
-    print("Test shape:", test_df.shape)
+# --- Compute dynamic threshold (mean of all non-zero scores) ---
+non_zero_scores = item_scheme_matrix[item_scheme_matrix > 0].stack()
+threshold = non_zero_scores.mean()
 
-    # Engagement matrix (Partner × Scheme)
-    user_scheme_matrix = train_df.pivot_table(
-        index="Partner_id",
-        columns="Scheme_Type",
-        values="Engagement_Score",
-        aggfunc="mean",
-        fill_value=0
-    )
+# --- Binarize using dynamic threshold ---
+binary_scheme_matrix = (item_scheme_matrix >= threshold).astype(int)
 
-    # Group applied schemes per (Partner, Product)
-    partner_product_schemes = train_df.groupby(["Partner_id", "Product_id"])["Scheme_Type"].apply(list).reset_index()
-    partner_product_schemes["Entity"] = partner_product_schemes["Partner_id"] + "_" + partner_product_schemes["Product_id"]
+# --- Transpose to get Scheme × Partner matrix ---
+scheme_matrix = binary_scheme_matrix.T
 
-    # Binary encode scheme presence per entity
-    mlb = MultiLabelBinarizer()
-    scheme_matrix = pd.DataFrame(
-        mlb.fit_transform(partner_product_schemes["Scheme_Type"]),
-        index=partner_product_schemes["Entity"],
-        columns=mlb.classes_
-    ).T
+# --- Jaccard similarity between schemes ---
+similarity_matrix = pd.DataFrame(index=scheme_matrix.index, columns=scheme_matrix.index, dtype=float)
 
-    # Compute Jaccard similarity between schemes
-    similarity_matrix = pd.DataFrame(index=scheme_matrix.index, columns=scheme_matrix.index, dtype=float)
-    for i in range(len(scheme_matrix)):
-        for j in range(len(scheme_matrix)):
-            if i != j:
-                similarity_matrix.iloc[i, j] = jaccard_score(scheme_matrix.iloc[i], scheme_matrix.iloc[j])
-            else:
-                similarity_matrix.iloc[i, j] = 1.0
-
-    # Recommendation generation
-    recommendations = []
-    test_pairs = test_df[["Partner_id", "Product_id", "Scheme_Type"]].drop_duplicates()
-
-    for _, row in test_pairs.iterrows():
-        partner = row["Partner_id"]
-        product = row["Product_id"]
-        current_scheme = row["Scheme_Type"]
-        entity_key = f"{partner}_{product}"
-
-        if current_scheme in similarity_matrix.index:
-            similar_schemes = similarity_matrix.loc[current_scheme].drop(current_scheme).sort_values(ascending=False).head(3)
-            sim_list = similar_schemes.index.tolist()
-
-            recommendations.append({
-                "Partner_id": partner,
-                "Product_id": product,
-                "Similarity_Score": round(similar_schemes.mean(), 6),
-                "Scheme_1": sim_list[0] if len(sim_list) > 0 else "No Scheme",
-                "Scheme_2": sim_list[1] if len(sim_list) > 1 else "No Scheme",
-                "Scheme_3": sim_list[2] if len(sim_list) > 2 else "No Scheme"
-            })
+for i in range(len(scheme_matrix)):
+    for j in range(len(scheme_matrix)):
+        if i != j:
+            similarity_matrix.iloc[i, j] = jaccard_score(
+                scheme_matrix.iloc[i].values, scheme_matrix.iloc[j].values
+            )
         else:
-            print(f"Scheme '{current_scheme}' not found in training data.")
+            similarity_matrix.iloc[i, j] = 1.0
 
-    # Final recommendation DataFrame
-    recommendation_df = pd.DataFrame(recommendations)
-    recommendation_df.to_csv("Scheme_Recommendations.csv", index=False)
-    print("Recommendations saved to Scheme_Recommendations.csv")
+# --- Generate top-3 scheme recommendations per test pair ---
+recommendations = []
+test_pairs = test_df[["Partner_id", "Product_id", "Scheme_Type"]].drop_duplicates()
 
-    return recommendation_df, test_df
+for _, row in test_pairs.iterrows():
+    partner = row["Partner_id"]
+    product = row["Product_id"]
+    current_scheme = row["Scheme_Type"]
+
+    if current_scheme in similarity_matrix.index:
+        similar_schemes = similarity_matrix.loc[current_scheme].drop(current_scheme).sort_values(ascending=False).head(3)
+        sim_list = similar_schemes.index.tolist()
+
+        recommendations.append({
+            "Partner_id": partner,
+            "Product_id": product,
+            "Similarity_Score": round(similar_schemes.mean(), 6),
+            "Scheme_1": sim_list[0] if len(sim_list) > 0 else "No Scheme",
+            "Scheme_2": sim_list[1] if len(sim_list) > 1 else "No Scheme",
+            "Scheme_3": sim_list[2] if len(sim_list) > 2 else "No Scheme"
+        })
+    else:
+        print(f"Scheme '{current_scheme}' not found in training data.")
+
+# --- Save recommendations ---
+recommendation_df = pd.DataFrame(recommendations)
+recommendation_df.to_csv("Scheme_Recommendations.csv", index=False)
+
+# --- Preview output ---
+print(recommendation_df.head())
 
 
 
