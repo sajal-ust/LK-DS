@@ -1,0 +1,5 @@
+openai==0.28
+scikit-learn
+python-dotenv
+pandas
+numpy

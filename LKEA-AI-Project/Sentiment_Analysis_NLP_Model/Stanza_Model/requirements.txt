@@ -1,7 +1,6 @@
-pandas
-openai==0.28
-stanza
 torch==2.0.0+cpu torchvision==0.15.0+cpu torchaudio==2.0.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
 transformers
 scikit-learn
-python-dotenv
+pandas
+stanza
+numpy
