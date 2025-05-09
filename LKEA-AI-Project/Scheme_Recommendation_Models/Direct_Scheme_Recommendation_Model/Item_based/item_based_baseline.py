@@ -62,9 +62,6 @@ recommendation_df.to_csv("Scheme_Recommendations.csv", index=False)
 # Preview
 print(recommendation_df.head())
 
-"Evaluation code"
-# Import required library
-import pandas as pd
 
 # Load the test data (long format — one row per availed scheme per partner)
 test_df = pd.read_csv("Test_Data.csv")
