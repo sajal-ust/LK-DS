@@ -11,7 +11,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.neighbors import NearestNeighbors
 from scipy.optimize import linprog
+from Final_Mapping import run_final_mapping #(item/user both use same code for mapping)
 import warnings
+from Item_Based.linear_programing_partner_product__recommendation import run_lp_scheme_mapping # item/user both use same code for lp
+from Item_Based.Partner_product_recommendation_Evaluation import run_item_based_recommendation # item/user both use same code for item based
+from Item_Based.optimized__partner_product_recommendations import run_simple_scheme_mapping # item/user both use same code for simple
+from Evaluation import run_evaluation # item/user both use same code for evaluation
 
 warnings.filterwarnings('ignore')
 
@@ -106,7 +111,7 @@ def lambda_handler(event, context):
 
         # Run Recommendation
         if ACTIVE_APPROACH == 'item':
-            from Item_Based.Partner_product_recommendation_Evaluation import run_item_based_recommendation
+            # from Item_Based.Partner_product_recommendation_Evaluation import run_item_based_recommendation
             result_df, test_df = run_item_based_recommendation(df, INCLUDE_PURCHASED)
             output_key = PARTNER_PRODUCT_KEY
         elif ACTIVE_APPROACH == 'user':
@@ -126,12 +131,12 @@ def lambda_handler(event, context):
 
         # Scheme Mapping
         if SCHEME_MAPPING_APPROACH == 'lp':
-            from Item_Based.linear_programing_partner_product__recommendation import run_lp_scheme_mapping
+            # from Item_Based.linear_programing_partner_product__recommendation import run_lp_scheme_mapping
             scheme_df = run_lp_scheme_mapping()
             save_file(scheme_df, SCHEME_MAPPING_LP_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
             scheme_file = SCHEME_MAPPING_LP_KEY
         elif SCHEME_MAPPING_APPROACH == 'simple':
-            from Item_Based.optimized__partner_product_recommendations import run_simple_scheme_mapping
+            # from Item_Based.optimized__partner_product_recommendations import run_simple_scheme_mapping
             scheme_df = run_simple_scheme_mapping(df)
             save_file(scheme_df, SCHEME_MAPPING_SIMPLE_KEY, is_lambda=IS_LAMBDA, bucket_name=OUTPUT_BUCKET)
             scheme_file = SCHEME_MAPPING_SIMPLE_KEY
@@ -139,12 +144,12 @@ def lambda_handler(event, context):
             raise ValueError("Invalid SCHEME_MAPPING_APPROACH value. Must be 'lp' or 'simple'.")
 
         # Final Mapping
-        from Final_Mapping import run_final_mapping
+        # from Final_Mapping import run_final_mapping
         logger.info(f"Running final mapping using {scheme_file} to generate {FINAL_SCHEME_KEY}")
         run_final_mapping(output_key, scheme_file, FINAL_SCHEME_KEY, IS_LAMBDA, OUTPUT_BUCKET)
 
         # Evaluation
-        from Evaluation import run_evaluation
+        # from Evaluation import run_evaluation
         eval_input = output_key
         results = run_evaluation(eval_input)
 
