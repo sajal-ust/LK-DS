@@ -1,21 +1,15 @@
 import os
 import logging
-import boto3
 import pandas as pd
-import numpy as np
 from io import BytesIO
-from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.metrics import jaccard_score
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import NearestNeighbors
-from scipy.sparse import csr_matrix
+import boto3
 
-# ------------------ Lambda-compatible path builder ------------------
-def get_local_path(filename):
-    base = "/tmp" if os.getenv("IS_LAMBDA", "false").lower() == "true" else "."
-    return os.path.join(base, filename)
+# --- Model Imports ---
+from item_based_baseline import run_item_based_model_with_engagement
+from user_based_baseline import run_user_based_model_without_engagement
+from evaluation import run_evaluation
 
-# ------------------ Logging Setup ------------------
+# --- Logging Setup ---
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 if not logger.handlers:
@@ -24,8 +18,12 @@ if not logger.handlers:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-# ------------------ I/O Helpers ------------------
+# --- I/O Helpers ---
 s3_client = boto3.client("s3")
+
+def get_local_path(filename):
+    base = "/tmp" if os.getenv("IS_LAMBDA", "false").lower() == "true" else "."
+    return os.path.join(base, filename)
 
 def load_file_from_s3(bucket, key):
     logger.info(f"Loading file from S3: {bucket}/{key}")
@@ -33,196 +31,82 @@ def load_file_from_s3(bucket, key):
     return pd.read_csv(BytesIO(response['Body'].read()))
 
 def save_file_to_s3(df, bucket, key):
-    logger.info(f"Saving result to S3: {bucket}/{key}")
+    logger.info(f"Saving file to S3: {bucket}/{key}")
     buffer = BytesIO()
     df.to_csv(buffer, index=False)
     buffer.seek(0)
     s3_client.put_object(Bucket=bucket, Key=key, Body=buffer)
 
-def load_file_locally(path):
+def load_file_locally(filename):
+    path = get_local_path(filename)
     logger.info(f"Loading file locally: {path}")
-    return pd.read_csv(get_local_path(path))
+    return pd.read_csv(path)
 
-def save_file_locally(df, path):
-    final_path = get_local_path(path)
-    logger.info(f"Saving result locally to resolved path: {final_path}")
-    df.to_csv(final_path, index=False)
+def save_file_locally(df, filename):
+    path = get_local_path(filename)
+    logger.info(f"Saving file locally: {path}")
+    df.to_csv(path, index=False)
 
-def save_evaluation_output(df, output_file, bucket_name):
-    buffer = BytesIO()
-    df.to_csv(buffer, index=False)
-    buffer.seek(0)
-    s3_client.put_object(Bucket=bucket_name, Key=output_file, Body=buffer.getvalue())
-    logger.info("\n==== Final Evaluation Table ====\n" + df.to_string(index=False))
-
-# ------------------ Item-Based Recommendation ------------------
-def run_item_based_recommendation(df, bucket_name, test_data_key, use_engagement):
-    if use_engagement:
-        df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
-
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
-
-    if os.getenv("IS_LAMBDA", "false").lower() == "true":
-        save_file_to_s3(test_df, bucket_name, test_data_key)
-    else:
-        save_file_locally(test_df, test_data_key)
-
-    partner_product_schemes = train_df.groupby(["Partner_id", "Product_id"])["Scheme_Type"].apply(list).reset_index()
-    partner_product_schemes["Entity"] = partner_product_schemes["Partner_id"] + "_" + partner_product_schemes["Product_id"]
-
-    mlb = MultiLabelBinarizer()
-    scheme_matrix = pd.DataFrame(
-        mlb.fit_transform(partner_product_schemes["Scheme_Type"]),
-        index=partner_product_schemes["Entity"],
-        columns=mlb.classes_
-    ).T
-
-    similarity_matrix = pd.DataFrame(index=scheme_matrix.index, columns=scheme_matrix.index, dtype=float)
-    for i in range(len(scheme_matrix)):
-        for j in range(len(scheme_matrix)):
-            similarity_matrix.iloc[i, j] = jaccard_score(scheme_matrix.iloc[i], scheme_matrix.iloc[j]) if i != j else 1.0
-
-    test_pairs = test_df[["Partner_id", "Product_id", "Scheme_Type"]].drop_duplicates()
-    recommendations = []
-    for _, row in test_pairs.iterrows():
-        partner, product, current_scheme = row
-        if current_scheme in similarity_matrix.index:
-            similar_schemes = similarity_matrix.loc[current_scheme].drop(current_scheme).sort_values(ascending=False).head(3)
-            sim_list = similar_schemes.index.tolist()
-            recommendations.append({
-                "Partner_id": partner,
-                "Product_id": product,
-                "Similarity_Score": round(similar_schemes.mean(), 6),
-                "Scheme_1": sim_list[0] if len(sim_list) > 0 else "No Scheme",
-                "Scheme_2": sim_list[1] if len(sim_list) > 1 else "No Scheme",
-                "Scheme_3": sim_list[2] if len(sim_list) > 2 else "No Scheme"
-            })
-    return pd.DataFrame(recommendations)
-
-# ------------------ User-Based Recommendation -------------------
-def run_user_based_recommendation(df, bucket_name, test_data_key, use_engagement):
-    if use_engagement:
-        df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (df["Feedback_Score"] + df["Growth_Percentage"])
-        score_col = "Engagement_Score"
-    else:
-        df["Scheme_Indicator"] = 1
-        score_col = "Scheme_Indicator"
-
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Partner_id"])
-
-    if os.getenv("IS_LAMBDA", "false").lower() == "true":
-        save_file_to_s3(test_df, bucket_name, test_data_key)
-    else:
-        save_file_locally(test_df, test_data_key)
-
-    matrix = train_df.pivot_table(index="Partner_id", columns="Scheme_Type", values=score_col, aggfunc="mean", fill_value=0)
-    user_scheme_sparse = csr_matrix(matrix.values)
-    partner_ids = list(matrix.index)
-
-    knn = NearestNeighbors(metric='cosine', algorithm='brute')
-    knn.fit(user_scheme_sparse)
-
-    def recommend_for_user(pid, top_n=3):
-        if pid not in matrix.index:
-            return None
-        idx = partner_ids.index(pid)
-        distances, indices = knn.kneighbors(user_scheme_sparse[idx], n_neighbors=min(top_n + 1, len(matrix)))
-        sims = 1 - distances.flatten()
-        neighbors = indices.flatten()
-        filtered = [(i, s) for i, s in zip(neighbors, sims) if i != idx]
-        if not filtered:
-            return None
-        top_idx, sim = filtered[0]
-        similar_user = partner_ids[top_idx]
-        top_schemes = train_df[train_df["Partner_id"] == similar_user]["Scheme_Type"].value_counts().head(3).index.tolist()
-        while len(top_schemes) < 3:
-            top_schemes.append("No Scheme")
-        product = train_df[train_df["Partner_id"] == pid]["Product_id"].unique()[0]
-        return [pid, product, round(sim, 6), *top_schemes]
-
-    recs = [recommend_for_user(pid) for pid in test_df["Partner_id"].unique() if recommend_for_user(pid)]
-    return pd.DataFrame(recs, columns=["Partner_id", "Product_id", "Similarity_Score", "Scheme_1", "Scheme_2", "Scheme_3"])
-
-# ------------------ Evaluation Logic ------------------
-def evaluate_scheme_recommendations(test_df, rec_df):
-    availed_df = test_df.groupby("Partner_id")["Scheme_Type"].apply(list).reset_index().rename(columns={"Scheme_Type": "Availed_Schemes"})
-    rec_df["Recommended_Schemes"] = rec_df[["Scheme_1", "Scheme_2", "Scheme_3"]].values.tolist()
-    merged = pd.merge(availed_df, rec_df[["Partner_id", "Recommended_Schemes"]], on="Partner_id", how="left")
-
-    merged["Availed_Schemes"] = merged["Availed_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
-    merged["Recommended_Schemes"] = merged["Recommended_Schemes"].apply(lambda x: x if isinstance(x, list) else [])
-
-    results = []
-    for k in [1, 2, 3]:
-        precision_list, recall_list = [], []
-        for _, row in merged.iterrows():
-            actual = set(row["Availed_Schemes"])
-            recommended = row["Recommended_Schemes"][:k]
-            if not actual:
-                continue
-            tp = len(set(recommended) & actual)
-            precision = tp / k
-            recall = tp / len(actual)
-            precision_list.append(precision)
-            recall_list.append(recall)
-        ap = round(np.mean(precision_list), 4) if precision_list else 0
-        ar = round(np.mean(recall_list), 4) if recall_list else 0
-        f1 = round(2 * ap * ar / (ap + ar), 4) if ap + ar else 0
-        results.append({"Top-K": k, "Avg Precision": ap, "Avg Recall": ar, "Avg F1 Score": f1})
-    return pd.DataFrame(results)
-
-# ------------------ Main Trigger ------------------
+# --- Main Handler ---
 def main_handler(event=None, context=None):
     for k, v in event.items():
         os.environ[k] = str(v)
 
-    active_approach = os.getenv("ACTIVE_APPROACH", "user_based")
+    # ENV
+    model_variant = os.getenv("MODEL_VARIANT", "user_baseline")
     is_lambda = os.getenv("IS_LAMBDA", "false").lower() == "true"
-    use_engagement_score = os.getenv("ENGAGEMENT_SCORE", "true").lower() == "true"
     bucket_name = os.getenv("BUCKET_NAME", "lk-scheme-recommendations")
     input_key = os.getenv("INPUT_KEY", "Augmented_Stockist_Data.csv")
-    recommendation_output_key = os.getenv("OUTPUT_KEY", "Scheme_Recommendations.csv")
-    evaluation_output_key = os.getenv("EVALUATION_OUTPUT_KEY", "Scheme_Evaluation_Metrics.csv")
-    test_data_key = os.getenv("TEST_DATA_KEY", "test_data.csv")
+    output_key = os.getenv("OUTPUT_KEY", "Scheme_Recommendations.csv")
+    evaluation_key = os.getenv("EVALUATION_OUTPUT_KEY", "Scheme_Evaluation_Metrics.csv")
+    test_key = os.getenv("TEST_DATA_KEY", "test_data.csv")
 
-    logger.info(f"[ENV] IS_LAMBDA={is_lambda}, ACTIVE_APPROACH={active_approach}, ENGAGEMENT_SCORE={use_engagement_score}")
+    logger.info(f"[ENV] IS_LAMBDA={is_lambda}, MODEL_VARIANT={model_variant}")
 
     try:
+        # Step 1: Load Input
         df = load_file_from_s3(bucket_name, input_key) if is_lambda else load_file_locally(input_key)
 
-        if active_approach == "item_based":
-            result_df = run_item_based_recommendation(df, bucket_name, test_data_key, use_engagement_score)
-        elif active_approach == "user_based":
-            result_df = run_user_based_recommendation(df, bucket_name, test_data_key, use_engagement_score)
+        # Step 2: Run appropriate model
+        if model_variant == "item_engagement":
+            result_df, test_df = run_item_based_model_with_engagement()
+        elif model_variant == "user_baseline":
+            result_df, test_df = run_user_based_model_without_engagement()
         else:
-            raise ValueError("ACTIVE_APPROACH must be 'item_based' or 'user_based'")
+            raise ValueError("MODEL_VARIANT must be one of: item_engagement, user_baseline")
 
+        # Step 3: Save recommendations + test
         if is_lambda:
-            save_file_to_s3(result_df, bucket_name, recommendation_output_key)
+            save_file_to_s3(result_df, bucket_name, output_key)
+            save_file_to_s3(test_df, bucket_name, test_key)
         else:
-            save_file_locally(result_df, recommendation_output_key)
+            save_file_locally(result_df, output_key)
+            save_file_locally(test_df, test_key)
 
-        test_df = load_file_from_s3(bucket_name, test_data_key) if is_lambda else load_file_locally(test_data_key)
+        # Step 4: Evaluate
+        result_eval_df = run_evaluation(recommendation_file=output_key, test_data_file=test_key)
 
-        result_eval_df = evaluate_scheme_recommendations(test_df, result_df)
-
+        # Step 5: Save Evaluation
         if is_lambda:
-            save_evaluation_output(result_eval_df, evaluation_output_key, bucket_name)
+            save_file_to_s3(result_eval_df, bucket_name, evaluation_key)
         else:
-            save_file_locally(result_eval_df, evaluation_output_key)
+            save_file_locally(result_eval_df, evaluation_key)
 
-        logger.info(f"{active_approach} recommendation and evaluation completed successfully.")
-        return {"statusCode": 200, "body": f"{active_approach} recommendation and evaluation completed successfully."}
+        logger.info(f"{model_variant} recommendation + evaluation completed.")
+        return {
+            "statusCode": 200,
+            "body": f"{model_variant} recommendation + evaluation completed."
+        }
 
     except Exception as e:
-        logger.error(f"Error in Lambda execution: {str(e)}")
+        logger.error(f"Execution Error: {str(e)}")
         return {"statusCode": 500, "body": str(e)}
 
+# --- Local Run ---
 if __name__ == "__main__":
     env_vars = {
         "IS_LAMBDA": os.getenv("IS_LAMBDA", "false"),
-        "ACTIVE_APPROACH": os.getenv("ACTIVE_APPROACH", "user_based"),
-        "ENGAGEMENT_SCORE": os.getenv("ENGAGEMENT_SCORE", "true"),
+        "MODEL_VARIANT": os.getenv("MODEL_VARIANT", "user_baseline"),  # toggle here
         "BUCKET_NAME": os.getenv("BUCKET_NAME", "lk-scheme-recommendations"),
         "INPUT_KEY": os.getenv("INPUT_KEY", "Augmented_Stockist_Data.csv"),
         "OUTPUT_KEY": os.getenv("OUTPUT_KEY", "Scheme_Recommendations.csv"),
@@ -230,3 +114,4 @@ if __name__ == "__main__":
         "TEST_DATA_KEY": os.getenv("TEST_DATA_KEY", "test_data.csv")
     }
     print(main_handler(env_vars))
+

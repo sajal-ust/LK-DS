@@ -4,7 +4,7 @@ from sklearn.metrics import jaccard_score
 from sklearn.model_selection import train_test_split
 
 # --- Load dataset ---
-df = pd.read_csv(r"C:\\Users\\290938\\OneDrive - UST\\Desktop\\LK-Git\\LK-DS\\LKEA-AI-Project\\Scheme_Recommendation_Models\\Direct_Scheme_Recommendation_Model\\Item_based\\Augmented_Stockist_Data.csv")
+df = pd.read_csv(r"Augmented_Stockist_Data.csv")
 
 # --- Compute Engagement Score ---
 df["Engagement_Score"] = np.log1p(df["Sales_Value_Last_Period"]) * (
