@@ -117,7 +117,20 @@ def run_user_based_model_without_engagement():
 
         avg_precision = round(sum(precision_list) / len(precision_list), 4) if precision_list else 0
         avg_recall = round(sum(recall_list) / len(recall_list), 4) if recall_list else 0
-        f1 = round(2 * avg_precision * avg_recall / (avg_precision + avg_recall), 4) if (avg_*_*
+        f1 = round(2 * avg_precision * avg_recall / (avg_precision + avg_recall), 4) if (avg_precision + avg_recall) else 0
 
+        results.append({
+            "Top-K": k,
+            "Avg Precision": avg_precision,
+            "Avg Recall": avg_recall,
+            "Avg F1 Score": f1
+        })
 
+    print("==== Per-Scheme Evaluation (WITH Availed Schemes) ====")
+    for r in results:
+        print(f"\nTop-{r['Top-K']}")
+        print(f"  Avg Precision : {r['Avg Precision']}")
+        print(f"  Avg Recall    : {r['Avg Recall']}")
+        print(f"  Avg F1 Score  : {r['Avg F1 Score']}")
 
+    return results
