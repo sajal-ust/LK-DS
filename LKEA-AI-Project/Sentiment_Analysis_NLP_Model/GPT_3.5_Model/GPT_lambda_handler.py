@@ -17,7 +17,10 @@ logger.setLevel(logging.INFO)
 is_lambda = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
 
 # Configure log file path based on environment
-log_file_path = '/tmp/app.log' if is_lambda else './app.log'
+base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
+
+log_file_path = '/tmp/app.log' if is_lambda else os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","GPT_3.5_Model","output_folder","logs")
+PREDICTIONS_PATH = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","GPT_3.5_Model", "output_folder")
 
 # Add handlers if they don't exist
 if not logger.handlers:
@@ -160,7 +163,7 @@ def save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name
     """
     Save results to local or S3 based on execution environment.
     """
-    output_dir = '/tmp' if is_lambda else r'C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\GPT_3.5_Model\output_folder'
+    output_dir = '/tmp' if is_lambda else PREDICTIONS_PATH
     os.makedirs(output_dir, exist_ok=True)
 
     try:
@@ -178,7 +181,7 @@ def save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name
         logger.error(f"Error in saving results: {e}")
         raise
 
-def save_outputs(df, classification_report_text, output_dir=r'C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\GPT_3.5_Model\output_folder'):
+def save_outputs(df, classification_report_text, output_dir):
     import os
     os.makedirs(output_dir, exist_ok=True)
 
@@ -285,7 +288,7 @@ def lambda_handler(event, context):
 
         # Save outputs
         #os.makedirs(f"{BASE_DIR}/GPT_3.5_Model/output_folder", exist_ok=True)
-        save_outputs(merged_df, report_df, output_dir=r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\GPT_3.5_Model\output_folder")
+        save_outputs(merged_df, report_df, PREDICTIONS_PATH)
         save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name=bucket_name)
         
         classification_report_str = report_df.to_dict()
@@ -312,10 +315,16 @@ def lambda_handler(event, context):
 if __name__ == "__main__":
     os.environ['IS_LAMBDA'] = 'false'
     
+    base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
+        
+    feedback_file = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "new_channel_partner_feedback.csv")
+    stockist_file = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "Augmented_Stockist_Data_Final.csv")
+   
+
     # Set these environment variables for local testing
     # You can modify these paths to point to your actual files
-    os.environ['INPUT_KEY_SENTIMENT'] = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\new_channel_partner_feedback.csv"
-    os.environ['INPUT_KEY_STOCKIST'] =  r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\Augmented_Stockist_Data_Final.csv"
+    os.environ['INPUT_KEY_SENTIMENT'] = feedback_file
+    os.environ['INPUT_KEY_STOCKIST'] =  stockist_file
     
     logger.info("Starting execution of lambda_handler")
     event = {"simulate": "run"}
