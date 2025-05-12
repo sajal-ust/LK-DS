@@ -10,6 +10,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.metrics import classification_report
 import traceback
 
+
 # Set up logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -17,8 +18,12 @@ logger.setLevel(logging.INFO)
 # Check if running in Lambda or locally
 is_lambda = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
 
+base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
 # Configure log file path based on environment
-log_file_path = '/tmp/app.log' if is_lambda else './app.log'
+log_file_path = '/tmp/app.log' if is_lambda else os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","Roberta_Model","output_folder","logs")
+PREDICTIONS_PATH = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","Roberta_Model", "output_folder")
+
+
 
 # Add handlers if they don't exist
 if not logger.handlers:
@@ -136,8 +141,8 @@ def save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name
     """
     Save results to local or S3 based on execution environment.
     """
-    output_dir = '/tmp' if is_lambda else r'C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\RoBERTa_Model\output_folder'
-    os.makedirs(output_dir, exist_ok=True)
+    #output_dir = '/tmp' if is_lambda else r'C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\Roberta_Model\output_folder'
+    #os.makedirs(output_dir, exist_ok=True)
 
     try:
         if is_lambda:
@@ -145,7 +150,7 @@ def save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name
             if bucket_name:
                 save_file_to_s3(merged_df, bucket_name, output_s3_key)
         else:
-            metrics_filename = f"RoBERTa_Sentiment_Predictions.csv"
+            metrics_filename = f"Robertaa_Sentiment_Predictions.csv"
             metrics_path = os.path.join(output_dir, metrics_filename)
             logger.info(f"Saving results locally to: {metrics_path}")
             merged_df.to_csv(metrics_path, index=False)
@@ -154,7 +159,7 @@ def save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name
         logger.error(f"Error in saving results: {e}")
         raise
 
-def save_outputs(df, classification_report_text, output_dir=r'C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\RoBERTa_Model\output_folder'):
+def save_outputs(df, classification_report_text, output_dir):
     import os
     os.makedirs(output_dir, exist_ok=True)
 
@@ -201,8 +206,8 @@ def lambda_handler(event, context):
         
         # Load data based on environment
         if is_lambda:
-            local_file_path = '/tmp/channel_partner_feedback.csv'
-            local_file_path_2 = '/tmp/augmented_stockist_data.csv'
+            local_file_path = 'channel_partner_feedback.csv'
+            local_file_path_2 = 'augmented_stockist_data.csv'
             
             # Download from S3 to Lambda tmp directory
             s3_client.download_file(bucket_name, file_key, local_file_path)
@@ -226,7 +231,7 @@ def lambda_handler(event, context):
             raise ValueError("CSV file must contain 'Feedback_Text' and 'Sentiment' columns")
 
         # Sentiment prediction
-        logger.info("Running RoBERTa sentiment analysis...")
+        logger.info("Running Roberta sentiment analysis...")
         roberta_predictions = []
         sentiment_scores = []
         
@@ -253,8 +258,8 @@ def lambda_handler(event, context):
         merged_df = pd.merge(stockist_df, df, on='Partner_id', how='left')
 
         # Save outputs
-        os.makedirs(f"{BASE_DIR}/RoBERTa_Model/output_folder", exist_ok=True)
-        save_outputs(merged_df, report_df, output_dir=r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\RoBERTa_Model\output_folder")
+        #os.makedirs(f"{BASE_DIR}/Roberta_Model/output_folder", exist_ok=True)
+        save_outputs(merged_df, report_df, PREDICTIONS_PATH)
         
         classification_report_str = report_df.to_dict()
 
@@ -276,13 +281,17 @@ def lambda_handler(event, context):
             'body': {'error': error_message}
         }
 
+
 if __name__ == "__main__":
     os.environ['IS_LAMBDA'] = 'false'
+    base_dir = os.getcwd()  # Gets the current directory    
+    # Define the new paths
+    feedback_csv = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "new_channel_partner_feedback.csv")
+    stockist_csv = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "Augmented_Stockist_Data_Final.csv")
     
-    # Set these environment variables for local testing
-    # You can modify these paths to point to your actual files
-    os.environ['INPUT_KEY_SENTIMENT'] = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\new_channel_partner_feedback.csv"
-    os.environ['INPUT_KEY_STOCKIST'] = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\Augmented_Stockist_Data_Final.csv"
+    # Set environment variables
+    os.environ['INPUT_KEY_SENTIMENT'] = feedback_csv
+    os.environ['INPUT_KEY_STOCKIST'] = stockist_csv
     
     logger.info("Starting execution of lambda_handler")
     event = {"simulate": "run"}
