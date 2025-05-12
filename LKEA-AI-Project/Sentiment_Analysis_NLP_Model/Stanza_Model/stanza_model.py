@@ -69,25 +69,9 @@ def run_stanza_pipeline(feedback_csv, stockist_csv, prediction_output_path, eval
 
     logger.info("Pipeline completed successfully.")
     return merged_df
-# if __name__ == "__main__":
-#     feedback_csv = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\new_channel_partner_feedback.csv"
-#     stockist_csv = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\Augmented_Stockist_Data_Final.csv"
-#     prediction_output_path = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\Stanza_Model\outputs\stanza_predictions.csv"
-#     evaluation_txt_path = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\Stanza_Model\outputs\stanza_evaluation_report.txt"
-#     #log_file_path = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\logs\stanza_pipeline.log"
-#     log_file = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\Stanza_Model\outputs\stanza_pipeline.log"  # 🔄 Log file path
-
-#     logger = setup_logger(log_file)
-
-#     try:
-#         run_stanza_pipeline(feedback_csv, stockist_csv, prediction_output_path, evaluation_txt_path, logger)
-#     except Exception as e:
-#         logger.exception("Stanza sentiment pipeline failed.")
-import os
 
 # Assume you're in the Sentiment_Analysis_NLP_Model directory
 base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
-print(base_dir)
 feedback_csv = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "new_channel_partner_feedback.csv")
 stockist_csv = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "Augmented_Stockist_Data_Final.csv")
 prediction_output = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","Stanza_Model", "outputs", "stanza_predictions.csv")
