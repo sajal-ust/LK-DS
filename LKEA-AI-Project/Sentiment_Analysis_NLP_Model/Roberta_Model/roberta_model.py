@@ -102,17 +102,19 @@ def run_roberta_pipeline(feedback_csv_path,
 
 # Run as a script 
 
-if __name__ == "__main__":
-    feedback_csv = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\new_channel_partner_feedback.csv"
-    stockist_csv = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\Augmented_Stockist_Data_Final.csv"
-    prediction_output = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\Roberta_Model\outputs\roberta_predictions.csv"
-    evaluation_output = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\Roberta_Model\outputs\roberta_evaluation_report.txt"
-    log_file = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\Roberta_Model\outputs\roberta_pipeline.log"  # 🔄 Log file path
 
-    # Setup logger
-    logger = setup_logger(log_file)
+# Assume you're in the Sentiment_Analysis_NLP_Model directory
+base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
 
-    try:
-        run_roberta_pipeline(feedback_csv, stockist_csv, prediction_output, evaluation_output)
-    except Exception as e:
-        logger.exception("Pipeline failed due to an error.")
+feedback_csv = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "new_channel_partner_feedback.csv")
+stockist_csv = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "Augmented_Stockist_Data_Final.csv")
+prediction_output = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","Roberta_Model", "outputs", "roberta_predictions.csv")
+evaluation_output = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","Roberta_Model", "outputs", "roberta_evaluation_report.txt")
+log_file = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","Roberta_Model", "outputs", "roberta_pipeline.log")
+# Setup logger
+logger = setup_logger(log_file)
+
+try:
+    run_roberta_pipeline(feedback_csv, stockist_csv, prediction_output, evaluation_output)
+except Exception as e:
+    logger.exception("Pipeline failed due to an error.")
