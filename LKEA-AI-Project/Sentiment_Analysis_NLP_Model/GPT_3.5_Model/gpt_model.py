@@ -6,26 +6,29 @@ import logging
 from dotenv import load_dotenv
 from sklearn.metrics import classification_report
 
-# Custom output paths
-OUTPUT_DIR = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\GPT_3.5_Model\outputs"
-PREDICTIONS_PATH = os.path.join(OUTPUT_DIR, "gpt_predictions.csv")
-REPORT_PATH = os.path.join(OUTPUT_DIR, "GPT_classification_report.txt")
-LOG_PATH = os.path.join(OUTPUT_DIR, "logs.log")
+base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
+        
+PREDICTIONS_PATH = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","GPT_3.5_Model", "outputs", "GPT_Model_predictions.csv")
+REPORT_PATH = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","GPT_3.5_Model", "outputs", "GPT_Model_evaluation_report.txt")
+LOG_PATH = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","GPT_3.5_Model", "outputs", "GPT_Model_pipeline.log")
 
+# Setup logger
 # Ensure output directory exists
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(base_dir, exist_ok=True)
 
 # Setup logging to file and console
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_PATH),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
+def setup_logger(log_file_path):
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
+    logging.basicConfig(
+        filename=log_file_path,
+        filemode='a',
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        level=logging.INFO
+    )
+    logger = logging.getLogger()
+    return logger
+logger = setup_logger(LOG_PATH)
 # Load environment variables
 def load_api_key():
     load_dotenv()
@@ -250,7 +253,7 @@ def process_feedback_data(feedback_path, stockist_path, batch_size=20):
             print(report)
 
         # Save predictions before merging
-        df.to_csv(os.path.join(OUTPUT_DIR, "gpt_predictions_only.csv"), index=False)
+        #df.to_csv(os.path.join(OUTPUT_DIR, "gpt_predictions_only.csv"), index=False)
         
         # Ensure Partner_id exists in both dataframes
         if "Partner_id" not in df.columns or "Partner_id" not in stockist_df.columns:
@@ -272,25 +275,21 @@ def process_feedback_data(feedback_path, stockist_path, batch_size=20):
         return None
 
 if __name__ == "__main__":
-    try:
-        load_api_key()
-        feedback_file = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\new_channel_partner_feedback.csv"
-        stockist_file = r"C:\Users\291688\LKEA-Project\LK-DS\LKEA-AI-Project\Sentiment_Analysis_NLP_Model\input_data\Augmented_Stockist_Data_Final.csv"
+    #try:
+    load_api_key()
+    base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
         
-        # Check if files exist
-        if not os.path.exists(feedback_file):
-            logger.error(f"Feedback file not found: {feedback_file}")
-            exit(1)
-        if not os.path.exists(stockist_file):
-            logger.error(f"Stockist file not found: {stockist_file}")
-            exit(1)
-            
-        merged_result_df = process_feedback_data(feedback_file, stockist_file)
+    feedback_file = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "new_channel_partner_feedback.csv")
+    stockist_file = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "Augmented_Stockist_Data_Final.csv")
+       
+    # Check if files exist
+    if not os.path.exists(feedback_file):
+        logger.error(f"Feedback file not found: {feedback_file}")
+        exit(1)
+    if not os.path.exists(stockist_file):
+        logger.error(f"Stockist file not found: {stockist_file}")
+        exit(1)
         
-        if merged_result_df is not None:
-            logger.info("Processing complete.")
-            print(merged_result_df.head())
-        else:
-            logger.error("Processing failed.")
-    except Exception as e:
-        logger.error(f"Unhandled exception in main: {e}")
+    merged_result_df = process_feedback_data(feedback_file, stockist_file)
+        
+   
