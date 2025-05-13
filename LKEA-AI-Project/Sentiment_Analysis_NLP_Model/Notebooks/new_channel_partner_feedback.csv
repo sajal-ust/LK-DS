@@ -1,0 +1,102 @@
+Feedback_Text,Sentiment,Partner_id
+Warranty claims take too long to process.,Negative,P1002
+The easy-to-use reporting tools help track performance effectively.,Positive,P1001
+Customer service representatives lack technical knowledge.,Negative,P1003
+"The product exceeded our expectations, and shipping was prompt.",Positive,P1027
+"User interface is intuitive, making navigation smooth and effortless.",Positive,P1000
+Hidden fees in the billing process make pricing unclear.,Negative,P1028
+Customer testimonials reflect high satisfaction with the product.,Positive,P1017
+The product offers great value for money compared to competitors.,Positive,P1059
+The analytics dashboard lacks crucial insights needed for business decisions.,Negative,P1094
+The onboarding tutorial does not cover key functions.,Negative,P1075
+"Product inventory is not updated in real time, leading to order cancellations.",Negative,P1031
+Video tutorials do not address common user concerns.,Negative,P1057
+The interface does not scale well on different screen sizes.,Negative,P1024
+The help desk tickets take too long to be resolved.,Negative,P1045
+Support calls have long wait times with no call-back option.,Negative,P1056
+Limited inventory tracking results in overselling issues.,Negative,P1098
+Customer feedback is actively considered for product improvements.,Positive,P1055
+Sales process has been streamlined with better technology support.,Positive,P1078
+Marketing support has helped boost sales and brand recognition.,Positive,P1032
+The training materials provided are outdated.,Negative,P1047
+No easy way to escalate urgent issues to management.,Negative,P1009
+"Error messages are vague, making troubleshooting difficult.",Negative,P1040
+Customizable options make the product suitable for various business needs.,Positive,P1011
+User permissions are difficult to configure for different roles.,Negative,P1014
+"Vendor communication is inconsistent, leading to uncertainty.",Negative,P1029
+"The mobile app crashes frequently, making it unreliable.",Negative,P1073
+Strong community support provides additional resources and best practices.,Positive,P1070
+The response from the escalation team is often unhelpful.,Negative,P1064
+Regular product webinars provide ongoing education and best practices.,Positive,P1035
+Support representatives provide inconsistent solutions to the same issue.,Negative,P1088
+"We are facing stock shortages frequently, disrupting sales.",Negative,P1007
+The discount structures have made bulk purchasing more attractive.,Positive,P1081
+Sales process has been streamlined with better technology support.,Positive,P1015
+The software updates introduce more bugs than they fix.,Negative,P1020
+Dedicated account manager support has been very helpful.,Positive,P1079
+Shipping speeds have consistently met or exceeded expectations.,Positive,P1046
+The product's reliability has strengthened customer confidence.,Positive,P1052
+"Order processing time has been significantly reduced, improving efficiency.",Positive,P1054
+"Account security measures are weak, raising privacy concerns.",Negative,P1034
+The vendor proactively communicates about product enhancements.,Positive,P1060
+The scalability of the platform supports business growth effectively.,Positive,P1043
+The flexible pricing model makes it accessible to businesses of all sizes.,Positive,P1061
+"Shipping partners are unreliable, frequently misplacing packages.",Negative,P1022
+"The product is well-engineered, leading to high durability.",Positive,P1036
+"Order processing time has been significantly reduced, improving efficiency.",Positive,P1048
+The onboarding guide made setting up the system quick and hassle-free.,Positive,P1004
+Customer demand has been steadily increasing for this product.,Positive,P1038
+"Platform customizations are minimal, reducing flexibility for users.",Negative,P1089
+"After-sales service has been excellent, increasing customer retention.",Positive,P1051
+"Collaboration has been seamless, with clear communication at all stages.",Positive,P1005
+"Packaging is poor, leading to damaged products in transit.",Negative,P1018
+Training was too generic and did not cover specific use cases.,Negative,P1050
+We have received great promotional support from the company.,Positive,P1090
+Search filters do not return accurate results.,Negative,P1082
+Timely communication from the team has helped in business planning.,Positive,P1049
+Shipping speeds have consistently met or exceeded expectations.,Positive,P1066
+The loyalty program rewards have increased customer retention.,Positive,P1021
+"Website speed is slow, making browsing frustrating.",Negative,P1008
+Long wait times for live chat support.,Negative,P1093
+Support team was quick to resolve our concerns professionally.,Positive,P1063
+The checkout process is confusing and leads to abandoned carts.,Negative,P1010
+"Pricing is too high compared to competitors, impacting sales.",Negative,P1033
+"Vendor communication is inconsistent, leading to uncertainty.",Negative,P1087
+Timely communication from the team has helped in business planning.,Positive,P1016
+Strong community support provides additional resources and best practices.,Positive,P1053
+"Pricing strategy is competitive, allowing better profit margins.",Positive,P1092
+Secure packaging has minimized damage during product transit.,Positive,P1077
+The onboarding tutorial does not cover key functions.,Negative,P1025
+Warranty support is hard to claim and lacks clear instructions.,Negative,P1100
+Commission structure has been motivating our sales team effectively.,Positive,P1086
+Limited payment options make transactions inconvenient.,Negative,P1091
+"The product is well-engineered, leading to high durability.",Positive,P1076
+"Support team lacks responsiveness, leading to unresolved issues.",Negative,P1071
+The company's commitment to innovation keeps the product competitive.,Positive,P1058
+Sales process has been streamlined with better technology support.,Positive,P1044
+"Account security measures are weak, raising privacy concerns.",Negative,P1074
+"The checkout process has unnecessary steps, leading to cart abandonment.",Negative,P1012
+Promotional emails are too frequent and feel like spam.,Negative,P1006
+Bulk order processing has been made faster and more efficient.,Positive,P1096
+No easy way to escalate urgent issues to management.,Negative,P1026
+User permissions are difficult to configure for different roles.,Negative,P1042
+User permissions are difficult to configure for different roles.,Negative,P1062
+The onboarding tutorial does not cover key functions.,Negative,P1084
+Email support responses are generic and do not resolve the issue.,Negative,P1097
+The FAQ section is not detailed enough to answer common questions.,Negative,P1069
+The latest update enhanced functionality and user experience.,Positive,P1067
+Return and refund policies are unclear and complicated.,Negative,P1023
+Frequent password reset requests indicate security flaws.,Negative,P1030
+Return and exchange policies are customer-friendly and efficient.,Positive,P1037
+Training was too generic and did not cover specific use cases.,Negative,P1013
+Long wait times for live chat support.,Negative,P1068
+Support team was quick to resolve our concerns professionally.,Positive,P1039
+The sales team is proactive and offers personalized recommendations.,Positive,P1095
+"Order processing time is too slow, leading to frustrated customers.",Negative,P1072
+The mobile app interface has made order management more efficient.,Positive,P1085
+Incentives are not attractive enough to drive more sales.,Negative,P1099
+"The product quality has been inconsistent, causing customer complaints.",Negative,P1065
+Regular product webinars provide ongoing education and best practices.,Positive,P1019
+Strong community support provides additional resources and best practices.,Positive,P1080
+The detailed user manual simplifies the learning process.,Positive,P1083
+The sales team is proactive and offers personalized recommendations.,Positive,P1041
