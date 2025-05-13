@@ -2,7 +2,7 @@ import boto3
 import pandas as pd
 from io import BytesIO
 import logging
-import os  # To read environment variables for Lambda
+import os
 import sys
 import openai
 import time
@@ -13,15 +13,28 @@ from sklearn.metrics import classification_report
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# Check if running in Lambda or locally
+is_lambda = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
+
+# Configure log file path based on environment
+base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
+
+log_file_path = '/tmp/app.log' if is_lambda else os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","GPT_3.5_Model","output_folder","logs")
+PREDICTIONS_PATH = os.path.join(base_dir, "LKEA-AI-Project","Sentiment_Analysis_NLP_Model","GPT_3.5_Model", "output_folder")
+
 # Add handlers if they don't exist
 if not logger.handlers:
     # Create a formatter that includes line numbers
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
 
-    # Add file handler
-    file_handler = logging.FileHandler('/tmp/app.log')
-    file_handler.setLevel(logging.INFO)
-    logger.addHandler(file_handler)
+    try:
+        # Add file handler
+        file_handler = logging.FileHandler(log_file_path)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    except Exception as e:
+        print(f"Failed to set up file handler: {e}")
 
     # Add console handler
     console_handler = logging.StreamHandler()
@@ -29,27 +42,16 @@ if not logger.handlers:
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-# Flag to distinguish between Lambda and local execution
-is_lambda = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
 logger.info(f"Running in Lambda mode: {is_lambda}")
 
+# Set directory paths based on environment
 BASE_DIR = '/tmp' if is_lambda else '.'
 # Ensure directories exist
 os.makedirs(f'{BASE_DIR}/input_data', exist_ok=True)
 os.makedirs(f'{BASE_DIR}/output_folder', exist_ok=True)
 
-# Try to import custom modules
-try:
-
-    logger.info("Successfully imported custom modules")
-except ImportError as e:
-    logger.error(f"Failed to import custom modules: {e}")
-    sys.exit(1)
-
 # Initialize S3 client
 s3_client = boto3.client('s3')
-
-
 
 def load_file_from_s3(bucket_name, file_key):
     """Load file from S3 and return as a DataFrame"""
@@ -113,9 +115,9 @@ def save_file_locally(df, file_path="./gpt_lambda_output.csv"):
     except Exception as e:
         logger.error(f"Error saving file locally: {e}")
         raise
+
 # Load environment variables
 load_dotenv()
-
 
 # Function to get sentiment using GPT
 def get_gpt_batch_sentiment_with_score(texts, batch_size=50, timeout=20):
@@ -156,116 +158,175 @@ def get_gpt_batch_sentiment_with_score(texts, batch_size=50, timeout=20):
         print(f"Error in batch processing: {e}")
         # Return default "Negative" with a score of 0 for each input in the batch
         return ["Negative"] * len(texts), [0.0] * len(texts)
-#
+
 def save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name=None):
     """
     Save results to local or S3 based on execution environment.
     """
-    output_dir = '/tmp' if is_lambda else './output_folder'
+    output_dir = '/tmp' if is_lambda else PREDICTIONS_PATH
     os.makedirs(output_dir, exist_ok=True)
-
-    # save_file_to_s3(merged_df, bucket_name, output_s3_key)
 
     try:
         if is_lambda:
             logger.info("Lambda environment detected — uploading to S3.")
             if bucket_name:
                 save_file_to_s3(merged_df, bucket_name, output_s3_key)
-
         else:
-            metrics_filename = f"metrics_output.csv"
+            metrics_filename = f"GPT_Sentiment_Predictions.csv"
             metrics_path = os.path.join(output_dir, metrics_filename)
             logger.info(f"Saving results locally to: {metrics_path}")
             merged_df.to_csv(metrics_path, index=False)
-
-            # if bucket_name:
-            #     logger.info("Also uploading local results to S3.")
-            #     save_file_to_s3(merged_df, bucket_name, f"{output_s3_key}")
 
     except Exception as e:
         logger.error(f"Error in saving results: {e}")
         raise
 
+def save_outputs(df, classification_report_text, output_dir):
+    import os
+    os.makedirs(output_dir, exist_ok=True)
+
+    df_output_path = os.path.join(output_dir, "GPT_sentiment_predictions.csv")
+    report_output_path = os.path.join(output_dir, "GPT_Classification_Report.txt")
+
+    df.to_csv(df_output_path, index=False)
+    logging.info(f"Saved DataFrame with predictions to {df_output_path}")
+
+    # Handle the classification report based on type
+    if isinstance(classification_report_text, str):
+        report_content = classification_report_text
+    else:
+        # Convert DataFrame or dict to string if needed
+        report_content = str(classification_report_text)
+        
+    with open(report_output_path, "w") as f:
+        f.write(report_content)
+    logging.info(f"Saved classification report to {report_output_path}")
 
 def lambda_handler(event, context):
+    # Set environment variables from event
     for k, v in event.items():
         os.environ[k] = str(v)
 
     is_lambda = os.environ.get('IS_LAMBDA', 'false').lower() == 'true'
-    bucket_name = os.getenv("BUCKET_NAME_SENTIMENT","roberta-data-text")
-    file_key =os.getenv("INPUT_KEY_SENTIMENT","channel_partner_feedback.csv")
-    file_key_2 =os.getenv("INPUT_KEY_STOCKIST","augmented_stockist_data_with_sentiment_cleaned.csv")
+    bucket_name = os.getenv("BUCKET_NAME_SENTIMENT", "roberta-data-text")
+    
+    # Fix file paths to handle local and S3 paths correctly
+    file_key = os.getenv("INPUT_KEY_SENTIMENT")
+    file_key_2 = os.getenv("INPUT_KEY_STOCKIST")
+    
+    # Default S3 output keys
     evaluation_output_key = os.getenv("SENTIMENT_EVALUATION_OUTPUT_KEY", "results/sentiment_evaluation_metrics.csv")
     output_s3_key = os.getenv("OUPUT_S3_KEY", "results/gpt_model_output.csv")
 
-
-        
     # Get API key from .env
     openai.api_key = os.getenv("OPENAI_API_KEY")
     
     # Check if API key is loaded
     if not openai.api_key:
-        raise ValueError("API key not found.")
-        
-    # Initialize S3 client
-    s3 = boto3.client('s3')
-    # Download file from S3
-    local_file_path = 'new_channel_partner_feedback.csv'
-
-    # Load data
-    df = load_file_from_s3(bucket_name,file_key)
-    stockist_df = load_file_from_s3(bucket_name,file_key_2)
-
-    if "Feedback_Text" not in df.columns or "Sentiment" not in df.columns:
-        raise ValueError("CSV file must contain 'Feedback_Text' and 'Sentiment' columns")
-
-    # Sentiment prediction
-    batch_size = 50
-    gpt_predictions = []
-    sentiment_scores = []
-
-    for start in range(0, len(df), batch_size):
-      batch_texts = df["Feedback_Text"].iloc[start:start+batch_size].tolist()
-      batch_sentiments, batch_scores = get_gpt_batch_sentiment_with_score(batch_texts, batch_size=batch_size)
-      gpt_predictions.extend(batch_sentiments)
-      sentiment_scores.extend(batch_scores)
-      # Sleep to avoid rate limiting between batches
-      time.sleep(1)
-
-
-    # Add predictions to dataframe
-    df["gpt_prediction"] = gpt_predictions
-    df["Feedback_Score"] = sentiment_scores
-
-    # Evaluate
-    logger.info("\nGPT Model Performance:")
-    report = classification_report(df["Sentiment"], df["gpt_prediction"], output_dict=True)
-    report_df = pd.DataFrame(report).transpose()
-    logger.info(report_df)
-
-    save_results_to_csv_wrapper(report_df,evaluation_output_key,is_lambda,bucket_name=bucket_name)
-    merged_df = pd.merge(stockist_df, df, on='Partner_id', how='left')
-    # Save results
-    # output_file_path = 'gpt_output.csv'
-    # df.to_csv(output_file_path,index='false')
-
-    # Upload to S3
-    #output_s3_key = 'results/gpt_output.csv'
-    
-    save_results_to_csv_wrapper(merged_df,output_s3_key,is_lambda,bucket_name=bucket_name)
-    classification_report_str = report_df.to_dict()
-
-    return {
-        'statusCode': 200,
-        'body': {
-            'message': 'Sentiment analysis completed successfully',
-            'classification_report': classification_report_str,
-            's3_output_path': f"s3://{bucket_name}/{output_s3_key}"
+        error_msg = "API key not found. Please set OPENAI_API_KEY in your environment variables."
+        logger.error(error_msg)
+        return {
+            'statusCode': 400,
+            'body': {'error': error_msg}
         }
-    }
+        
+    try:
+        # Load data based on environment
+        if is_lambda:
+            local_file_path = 'new_channel_partner_feedback.csv'
+            local_file_path_2 = 'Augmented_Stockist_Data_Final.csv'
+            
+            # Download from S3 to Lambda tmp directory
+            s3_client.download_file(bucket_name, file_key, local_file_path)
+            s3_client.download_file(bucket_name, file_key_2, local_file_path_2)
+            
+            df = load_file_locally(local_file_path)
+            stockist_df = load_file_locally(local_file_path_2)
+        else:
+            # Try loading from S3 first, fallback to local file if that fails
+            try:
+                df = load_file_from_s3(bucket_name, file_key)
+                stockist_df = load_file_from_s3(bucket_name, file_key_2)
+            except Exception as e:
+                logger.warning(f"Failed to load from S3, trying local file: {e}")
+                # Try handling file_key as a local file path
+                df = load_file_locally(file_key)
+                stockist_df = load_file_locally(file_key_2)
+
+        # Validate required columns
+        if "Feedback_Text" not in df.columns or "Sentiment" not in df.columns:
+            raise ValueError("CSV file must contain 'Feedback_Text' and 'Sentiment' columns")
+
+        # Sentiment prediction
+        batch_size = 50
+        gpt_predictions = []
+        sentiment_scores = []
+
+        for start in range(0, len(df), batch_size):
+            batch_texts = df["Feedback_Text"].iloc[start:start+batch_size].tolist()
+            batch_sentiments, batch_scores = get_gpt_batch_sentiment_with_score(batch_texts, batch_size=batch_size)
+            gpt_predictions.extend(batch_sentiments)
+            sentiment_scores.extend(batch_scores)
+            # Sleep to avoid rate limiting between batches
+            time.sleep(1)
+
+        # Add predictions to dataframe
+        df["gpt_prediction"] = gpt_predictions
+        df["Feedback_Score"] = sentiment_scores
+
+        # Evaluate
+        logger.info("\nGPT Model Performance:")
+        report = classification_report(df["Sentiment"], df["gpt_prediction"], output_dict=True)
+        report_df = pd.DataFrame(report).transpose()
+        logger.info(report_df)
+
+        # Save evaluation metrics
+        save_results_to_csv_wrapper(report_df, evaluation_output_key, is_lambda, bucket_name=bucket_name)
+        
+        # Merge dataframes
+        merged_df = pd.merge(stockist_df, df, on='Partner_id', how='left')
+
+        # Save outputs
+        #os.makedirs(f"{BASE_DIR}/GPT_3.5_Model/output_folder", exist_ok=True)
+        save_outputs(merged_df, report_df, PREDICTIONS_PATH)
+        save_results_to_csv_wrapper(merged_df, output_s3_key, is_lambda, bucket_name=bucket_name)
+        
+        classification_report_str = report_df.to_dict()
+
+        return {
+            'statusCode': 200,
+            'body': {
+                'message': 'Sentiment analysis completed successfully',
+                'classification_report': classification_report_str,
+                's3_output_path': f"s3://{bucket_name}/{output_s3_key}" if bucket_name else "Local file saved"
+            }
+        }
+        
+    except Exception as e:
+        error_message = f"Error in lambda_handler: {str(e)}"
+        logger.error(error_message)
+        import traceback
+        traceback.print_exc()
+        return {
+            'statusCode': 500,
+            'body': {'error': error_message}
+        }
+
 if __name__ == "__main__":
     os.environ['IS_LAMBDA'] = 'false'
+    
+    base_dir = base_dir = os.getcwd() #os.path.dirname(__file__)  # Gets the current script's directory
+        
+    feedback_file = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "new_channel_partner_feedback.csv")
+    stockist_file = os.path.join(base_dir,"LKEA-AI-Project","Sentiment_Analysis_NLP_Model", "input_data", "Augmented_Stockist_Data_Final.csv")
+   
+
+    # Set these environment variables for local testing
+    # You can modify these paths to point to your actual files
+    os.environ['INPUT_KEY_SENTIMENT'] = feedback_file
+    os.environ['INPUT_KEY_STOCKIST'] =  stockist_file
+    
     logger.info("Starting execution of lambda_handler")
-    event={"simulate": "run"}
+    event = {"simulate": "run"}
     result = lambda_handler(event, None)
     logger.info(f"Execution result: {result}")
